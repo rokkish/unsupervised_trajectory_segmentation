@@ -1,0 +1,6 @@
+result_slide/
+sauce_image/
+*.ipynb
+.ipynb_checkpoints
+pylintrc
+sauce_kanezaki.py
