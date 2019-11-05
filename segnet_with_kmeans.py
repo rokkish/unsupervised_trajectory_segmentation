@@ -1,21 +1,20 @@
 """this is main program of segnet with kmeans(use one trajectory)"""
 #!/usr/bin/env python
 # coding: utf-8
+# conda envs==py35
 
 import argparse
 import time
 import os
 import numpy as np
-
 import torch
 
+from my_util import get_traj, plt_label, set_hypara, sec_argmax, Args
+from my_util import do_kmeans_InsteadOfSlic, utils
 # import pandas as pd
 # import matplotlib.pyplot as plt
 # from matplotlib import cm
 # from scipy.stats import entropy
-
-from my_util import get_traj, plt_label, set_hypara, sec_argmax, Args
-from my_util import do_kmeans_InsteadOfSlic, utils
 
 def run(traj, df_traj_i, args):
     """ run algorithm at each trajectory"""
@@ -60,7 +59,8 @@ def run(traj, df_traj_i, args):
     for BATCH_IDX in range(args.train_epoch):
         '''forward'''
         optimizer.zero_grad()
-        output = model(tensor)[0]
+        output = model(tensor)
+        output = output[0]
         output = output.permute(1, 2, 0).view(-1, args.mod_dim2)
         target = torch.argmax(output, 1)
 
