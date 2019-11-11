@@ -123,7 +123,7 @@ def plot_initial_kmeans_segmentation_results(df_traj_i, args):
 def plot_entropy_at_each_pixel(output, train_epoch, batch_idx):
     """ plot entropy"""
     if batch_idx == train_epoch-1:
-        print(output.shape)
+        #print(output.shape)
         plt.figure(figsize=(10, 5))
         plt.imshow(output.detach().cpu())
         plt.colorbar()
@@ -134,7 +134,7 @@ def plot_entropy_at_each_pixel(output, train_epoch, batch_idx):
 def plot_segmentresult_each_batch(im_target, df_traj_i, args, batch_idx, file_name):
     """ Plot segment traj colored by cluster"""
     if batch_idx%5 == 0 and batch_idx < 30:
-        print("batch %.1f"%(batch_idx), end="")
+        #print("batch %.1f"%(batch_idx), end="")
         plt.figure(figsize=(10, 5))
         plt.style.use('dark_background')
         plt.scatter(df_traj_i[args.lat], df_traj_i[args.lon], c=im_target, cmap="tab20", s=16)
