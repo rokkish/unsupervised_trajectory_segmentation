@@ -17,7 +17,7 @@ class Args(object):
     train_epoch = 2 ** 6
     mod_dim1 = 64 #
     mod_dim2 = 32 # 32
-    GPU_ID = 1
+    GPU_ID = 0
 
     MIN_LABEL_NUM = 4  # if the label number small than it, break loop
 

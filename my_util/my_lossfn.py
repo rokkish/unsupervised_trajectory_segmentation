@@ -2,12 +2,11 @@
 import torch
 import torch.nn as nn
 import numpy as np
-from matplotlib import pylab as plt
 
 def my_penalty(outputs, labels, alpha, lambda_p, Tau):
     # outputs =(time, channel)
     # x =(batch, channel, time)
-    device = torch.device("cuda" if torch.cuda.is_available() else 'cpu')    
+    device = torch.device("cuda" if torch.cuda.is_available() else 'cpu')
     x = outputs[np.newaxis, :, :]
     x = x.transpose(1, 2)
     T = x.shape[2]
@@ -27,7 +26,7 @@ def my_penalty(outputs, labels, alpha, lambda_p, Tau):
     pairwise_distance = xx + inner + xx.transpose(2, 1)
     dist = torch.exp(-pairwise_distance/alpha)
 
-    
+
     #print(pairwise_distance.shape)
     """plt.imshow(pairwise_distance.detach().cpu()[0,...])
     plt.colorbar()
@@ -40,13 +39,13 @@ def my_penalty(outputs, labels, alpha, lambda_p, Tau):
     plt.imshow(weight.detach().cpu())
     plt.colorbar()
     plt.show()"""
-    
-    
+
+
     """ペナルティ項"""
     dist = dist.to(device)
     penalty = int(torch.sum(weight * dist[0, :, :]).item())
     #print(penalty)
-    
+
     """CrossEntropyloss"""
     ce_fn = nn.CrossEntropyLoss()
     ce_loss = ce_fn(outputs, labels)

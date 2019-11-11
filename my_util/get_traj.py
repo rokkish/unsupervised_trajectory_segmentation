@@ -65,4 +65,4 @@ def norm_fromdir_todf_traj(trajectory, time_dim):
         #add
         df_traj = pd.concat([df_traj, traj, zero_], axis=1)
         #print(df_traj)
-    return df_traj.fillna(0)
+    return df_traj#.fillna(0)
