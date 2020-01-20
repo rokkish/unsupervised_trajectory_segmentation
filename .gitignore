@@ -1,6 +1,20 @@
+# dev env
+.vscode/
+
+# data
 result_slide/
 sauce_image/
+sauce_kanezaki.py
+*.csv
+
+# useless notebook, .py
 *.ipynb
 .ipynb_checkpoints
+worm_cnn_CV-checkpoint.py
+
+#
 pylintrc
-sauce_kanezaki.py
+my_util/__pycache__/
+my_util/unet/__pycache__/
+
+*.pyc

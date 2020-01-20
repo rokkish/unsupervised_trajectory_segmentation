@@ -57,8 +57,8 @@ def plot_label(label, df_traj_i, lat, lon, trip_no, result_dir):
                     df_tmp.loc[df_tmp["label"] == pd.unique(label)[i]][lon], s=8)
         plt.title(str(i))
     plt.savefig("./"+result_dir+"/"+"{:0=3}".format(trip_no)+"_each.png")
-    plt.close()
-    # plt.show()
+    # plt.close()
+    plt.show()
 
 def plot_ouput_entropy(model_output, trajectory_i, args, entropy):
     """plot model output entropy"""
@@ -123,18 +123,18 @@ def plot_initial_kmeans_segmentation_results(df_traj_i, args):
 def plot_entropy_at_each_pixel(output, train_epoch, batch_idx):
     """ plot entropy"""
     if batch_idx == train_epoch-1:
-        print(output.shape)
+        #print(output.shape)
         plt.figure(figsize=(10, 5))
         plt.imshow(output.detach().cpu())
         plt.colorbar()
         plt.title("plt entropy at each pixel")
-        #plt.close()
-        plt.show()
+        plt.close()
+        #plt.show()
 
 def plot_segmentresult_each_batch(im_target, df_traj_i, args, batch_idx, file_name):
     """ Plot segment traj colored by cluster"""
     if batch_idx%5 == 0 and batch_idx < 30:
-        print("batch %.1f"%(batch_idx), end="")
+        #print("batch %.1f"%(batch_idx), end="")
         plt.figure(figsize=(10, 5))
         plt.style.use('dark_background')
         plt.scatter(df_traj_i[args.lat], df_traj_i[args.lon], c=im_target, cmap="tab20", s=16)
@@ -166,8 +166,8 @@ def plot_entropy_at_each_batch(output, df_traj_i, args, batch_idx, entropy):
     plt.title("entropy")
     plt.colorbar()
     plt.savefig("./"+args.result_dir+"/entropy_"+str(batch_idx)+".png")
-    #plt.close()
-    plt.show()
+    plt.close()
+    # plt.show()
 
 def plot_num_of_same_label(ls_target_idx):
     """ plot num same label all epoch"""
