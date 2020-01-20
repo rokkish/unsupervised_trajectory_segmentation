@@ -13,7 +13,7 @@ def my_penalty(outputs, labels, alpha, lambda_p, Tau):
     weight = torch.zeros([T, T])
     weight = weight.to(device)
     for t in range(T):
-        lag = torch.arange(T)-t
+        lag = torch.arange(T) - t
         # lag = lag / (2*T+1.0)
         lag = lag.to(device)
         lag = torch.exp(torch.sqrt(lag.float()**2) / Tau) - 1.0
@@ -24,11 +24,12 @@ def my_penalty(outputs, labels, alpha, lambda_p, Tau):
     inner = -2 * torch.matmul(x, x.transpose(2, 1))
     xx = torch.sum(x ** 2, dim=2, keepdim=True)
     pairwise_distance = xx + inner + xx.transpose(2, 1)
-    dist = torch.exp(-pairwise_distance/alpha)
+    dist = torch.exp(- pairwise_distance / alpha)
 
 
     #print(pairwise_distance.shape)
-    """plt.imshow(pairwise_distance.detach().cpu()[0,...])
+    """
+    plt.imshow(pairwise_distance.detach().cpu()[0,...])
     plt.colorbar()
     plt.show()
     plt.figure()
@@ -38,7 +39,8 @@ def my_penalty(outputs, labels, alpha, lambda_p, Tau):
     plt.figure()
     plt.imshow(weight.detach().cpu())
     plt.colorbar()
-    plt.show()"""
+    plt.show()
+    """
 
 
     """ペナルティ項"""
@@ -47,7 +49,8 @@ def my_penalty(outputs, labels, alpha, lambda_p, Tau):
     #print(penalty)
 
     """CrossEntropyloss"""
-    ce_fn = nn.CrossEntropyLoss()
+    ce_fn = nn.CrossEntropyLoss(ignore_index=0)
     ce_loss = ce_fn(outputs, labels)
     #print("penalty:",lambda_p*penalty)
-    return ce_loss+lambda_p*penalty
+
+    return ce_loss + lambda_p * penalty

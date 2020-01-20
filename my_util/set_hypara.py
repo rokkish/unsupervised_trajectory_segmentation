@@ -55,7 +55,7 @@ def hypara_check(start, end, num_data):
         print("####### INVERSE start <=> end ??")
     elif (start > num_data) or (end > num_data):
         ans = False
-        print("####### PLEASE INPUT NUMBER:(start,end) UNDER "+str(num_data))
+        print("####### PLEASE INPUT NUMBER:(start,end) UNDER " + str(num_data))
     return ans
 
 def set_hypara(args, tmp):
@@ -84,7 +84,7 @@ def get_para(args):
         lat, lon = "x", "y"
 
     # result directory
-    result_dir = "result_slide/"+args.animal+"_xy"
+    result_dir = "result_slide/" + args.animal + "_xy"
     if args.time_dim:
         result_dir += "t"
     else:
@@ -96,15 +96,15 @@ def get_para(args):
     if args.crossonly:
         result_dir += "_nonmyloss"
     else:
-        result_dir += "_myloss_a"+str(args.alpha)+"_p"+str(args.lambda_p)+"_tau"+str(args.Tau)
-    if not os.path.isdir("./"+result_dir):
+        result_dir += "_myloss_a" + str(args.alpha) + "_p" + str(args.lambda_p) + "_tau" + str(args.Tau)
+    if not os.path.isdir("./" + result_dir):
         try:
-            os.mkdir("./"+result_dir)
+            os.mkdir("./" + result_dir)
         except:
             current_path = os.getcwd()
             #modified_path = current_path.replace(" ", "/ ")
-            modified_path = "\""+current_path+"\""
-            os.mkdir(modified_path+"/"+result_dir)
+            modified_path = "\"" + current_path + "\""
+            os.mkdir(modified_path + "/" + result_dir)
 
     print("Save figure, " + result_dir)
     return lat, lon, result_dir

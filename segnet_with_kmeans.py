@@ -126,6 +126,7 @@ def main(args):
 
     for i in range(args.START_ID, traj.shape[1]):
         if utils.check_break(i, ls_traj_length, args.END_ID):
+            assert(ValueError("Break run"))
             break
         print("No."+str(i)+", Length:"+str(ls_traj_length[i]))
 
@@ -159,8 +160,8 @@ if __name__ == '__main__':
     PARSER.add_argument("--time", action="store_true")
     PARSER.add_argument("--myloss", action="store_false")
     PARSER.add_argument("--secmax", action="store_true")
-    PARSER.add_argument("--start", type=int, default=0)
-    PARSER.add_argument("--end", type=int, default=5)
+    PARSER.add_argument("--start", type=int, default=0, help="this is start_id")
+    PARSER.add_argument("--end", type=int, default=5, help="this is end_id")
     PARSER.add_argument("--net", type=str, default="segnet")
 
     ARGS_TMP = PARSER.parse_args()
