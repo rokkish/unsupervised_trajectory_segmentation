@@ -11,10 +11,35 @@ import torch
 
 from my_util import get_traj, plt_label, set_hypara, sec_argmax, Args
 from my_util import do_kmeans_InsteadOfSlic, utils
-# import pandas as pd
-# import matplotlib.pyplot as plt
-# from matplotlib import cm
-# from scipy.stats import entropy
+
+import matplotlib.pyplot as plt
+
+### begin region ###
+
+import logging
+
+# create logger
+logger = logging.getLogger('train_unsuperpised_traj_segmentation')
+logger.setLevel(logging.DEBUG)
+
+# create console handler and set level to debug
+sh = logging.StreamHandler()
+fh = logging.FileHandler("./log/test.log")
+sh.setLevel(logging.INFO)
+fh.setLevel(logging.DEBUG)
+
+# create formatter
+formatter = logging.Formatter('[%(asctime)s] - [%(name)s] - [%(levelname)s] - %(message)s')
+
+# add formatter to handler
+sh.setFormatter(formatter)
+fh.setFormatter(formatter)
+
+# add handler to logger
+logger.addHandler(sh)
+logger.addHandler(fh)
+
+### end region ###
 
 device = torch.device("cuda" if torch.cuda.is_available() else 'cpu')
 
@@ -84,17 +109,20 @@ def run(traj, df_traj_i, args, model, optimizer):
         optimizer.step()
 
         un_label = np.unique(im_target, )
-        # un_label, lab_inverse = np.unique(im_target, return_inverse=True, )
 
         ret_loss.append(loss.item())
+
+        logger.debug("Trajectory epoch: %d/%d, loss: %d" % (i, args.END_ID - args.START_ID, loss.item()))
+
         if args.sec_argmax:
             ls_target_idx.extend([len(target_idx)])
+
         if len(un_label) < args.MIN_LABEL_NUM:
             break
         # plt_label.plot_entropy_at_each_batch(output, df_traj_i, args, BATCH_IDX, entropy)
 
-    if args.sec_argmax:
-        plt_label.plot_num_of_same_label(ls_target_idx)
+    #if args.sec_argmax:
+    #    plt_label.plot_num_of_same_label(ls_target_idx)
 
     time0 = time.time() - start_time0
     time1 = time.time() - start_time1
@@ -125,15 +153,20 @@ def main(args):
 
     optimizer = torch.optim.SGD(model.parameters(), lr=5e-2, momentum=0.9)
 
+    """catch loss"""
+    loss_all = []
+
     for e in range(args.epoch_all):
 
+        logger.info("Train epoch: %d/%d " % (e + 1, args.epoch_all))
+
         for i in range(args.START_ID, traj.shape[1]):
+
+            logger.debug("Trajectory Num: %d/%d, traj Length: %d" % (i, args.END_ID - args.START_ID, ls_traj_length[i]))
 
             if utils.check_break(i, ls_traj_length, args.END_ID):
                 # assert(ValueError("Too short data"))
                 break
-
-            print("No."+str(i)+", Length:"+str(ls_traj_length[i]))
 
             traj_ = traj[:ls_traj_length[i], i, :]
             traj_ = traj_[:, np.newaxis, :]
@@ -143,17 +176,24 @@ def main(args):
 
             """ run """
             label, loss = run(traj_, trajectory[i], args, model, optimizer)
+            loss_all.extend(loss)
 
             """plot freq"""
             #plt_label.plot_freq(label, loss)
 
             """plt output"""
-            # plt_label.plot_ouput_entropy(model_output, trajectory[i], args, entropy)
+            #plt_label.plot_ouput_entropy(model_output, trajectory[i], args, entropy)
 
             """plot result seg"""
             #plt_label.plot_label(label, trajectory[i], args.lat, args.lon, i, args.result_dir)
 
-    torch.save(vae.state_dict(), "./models/model.pkl")
+    torch.save(model.state_dict(), "./models/model.pkl")
+
+    plt.plot(loss)
+    plt.ylabel("loss")
+    plt.xlabel("batches")
+    plt.title("loss")
+    plt.show()
 
 if __name__ == '__main__':
     PARSER = argparse.ArgumentParser(description="this is Segnet with Kmeans")
@@ -162,8 +202,8 @@ if __name__ == '__main__':
     PARSER.add_argument("--animal", choices=["cel", "bird"], default="bird")
 
     # train
-    PARSER.add_argument("-e", "--epoch", type=int, default=2**6)
-    PARSER.add_argument("--epoch_all", type=int, default=2**3)
+    PARSER.add_argument("-e", "--epoch", type=int, default=2**6, help="BATCH: num of trainging with one trajectory")
+    PARSER.add_argument("--epoch_all", type=int, default=2**3, help="EPOCH: num of training with all trajectories")
 
     # hypara of custom loss
     PARSER.add_argument("--alpha", default=10)
@@ -185,6 +225,7 @@ if __name__ == '__main__':
     ARGS_TMP = PARSER.parse_args()
     ARGSE = Args()
 
+    # HACK: this is too uneffectively.
     # translate from input arg to default arg
     ARGSE = set_hypara.set_hypara(ARGSE, ARGS_TMP)
 
