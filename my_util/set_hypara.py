@@ -15,6 +15,8 @@ import sys
 class Args(object):
     """this is hyper parameter setting module."""
     train_epoch = 2 ** 6
+    epoch_all = 2 ** 3
+
     mod_dim1 = 64 #
     mod_dim2 = 32 # 32
     GPU_ID = 0
@@ -60,10 +62,15 @@ def hypara_check(start, end, num_data):
 
 def set_hypara(args, tmp):
     """this is module for setting parameters from tmp."""
-    args.animal, args.train_epoch, args.alpha = tmp.animal, tmp.epoch, tmp.alpha
+    args.animal, args.train_epoch, args.epoch_all, args.alpha = \
+        tmp.animal, tmp.epoch, tmp.epoch_all, tmp.alpha
+
     args.lambda_p, args.Tau = tmp.lambda_p, tmp.tau
+
     args.time_dim, args.crossonly, args.sec_argmax = tmp.time, tmp.myloss, tmp.secmax
+
     args.network = tmp.net
+
     args.lat, args.lon, args.result_dir = get_para(args)
 
     if hypara_check(int(tmp.start), int(tmp.end), get_numdata(args.animal)):
