@@ -16,7 +16,9 @@ from my_util import do_kmeans_InsteadOfSlic, utils
 # from matplotlib import cm
 # from scipy.stats import entropy
 
-def run(traj, df_traj_i, args):
+device = torch.device("cuda" if torch.cuda.is_available() else 'cpu')
+
+def run(traj, df_traj_i, args, model, optimizer):
     """ run algorithm at each trajectory"""
 
     start_time0 = time.time()
@@ -29,9 +31,6 @@ def run(traj, df_traj_i, args):
 
     plt_label.plot_initial_kmeans_segmentation_results(df_traj_i, args)
 
-    '''train init'''
-    device = torch.device("cuda" if torch.cuda.is_available() else 'cpu')
-
     # reshape
     tensor = traj.transpose((2, 0, 1))
     # norm
@@ -40,16 +39,9 @@ def run(traj, df_traj_i, args):
     tensor = tensor[np.newaxis, :, :, :]
     tensor = torch.from_numpy(tensor).to(device)
 
-    model = utils.set_network_model(network=args.network,\
-        mod_dim1=args.mod_dim1, mod_dim2=args.mod_dim2, device=device)
-
-    #if args.crossonly:
-    #    criterion = nn.CrossEntropyLoss()
-
-    optimizer = torch.optim.SGD(model.parameters(), lr=5e-2, momentum=0.9)
-
     '''train loop'''
     start_time1 = time.time()
+
     model.train()
 
     # loss every batch, num of
@@ -57,6 +49,7 @@ def run(traj, df_traj_i, args):
     ls_target_idx = []
 
     for BATCH_IDX in range(args.train_epoch):
+
         '''forward'''
         optimizer.zero_grad()
         output = model(tensor)
@@ -74,9 +67,11 @@ def run(traj, df_traj_i, args):
 
         """refine"""
         plt_label.plot_segmentresult_each_batch(im_target, df_traj_i, args, BATCH_IDX, "before")
+
         for inds in seg_lab:
             u_labels, hist = np.unique(im_target[inds], return_counts=True)
             im_target[inds] = u_labels[np.argmax(hist)]
+
         plt_label.plot_segmentresult_each_batch(im_target, df_traj_i, args, BATCH_IDX, "after")
 
         """backward"""
@@ -104,8 +99,8 @@ def run(traj, df_traj_i, args):
     time0 = time.time() - start_time0
     time1 = time.time() - start_time1
     print('\n PyTorchInit: %.2f\nTimeUsed: %.2f' % (time0, time1))
+
     return im_target, ret_loss
-    # return im_target, ret_loss, ret_seg_map, output
 
 def main(args):
     """do run() and plot results for all trajectory"""
@@ -124,48 +119,75 @@ def main(args):
     traj = np.reshape(traj, (traj.shape[0], int(traj.shape[1]/3), 3))
     ls_traj_length = get_traj.get_len_traj(trajectory)
 
-    for i in range(args.START_ID, traj.shape[1]):
-        if utils.check_break(i, ls_traj_length, args.END_ID):
-            assert(ValueError("Break run"))
-            break
-        print("No."+str(i)+", Length:"+str(ls_traj_length[i]))
+    """define model"""
+    model = utils.set_network_model(network=args.network,\
+        mod_dim1=args.mod_dim1, mod_dim2=args.mod_dim2, device=device)
 
-        traj_ = traj[:ls_traj_length[i], i, :]
-        traj_ = traj_[:, np.newaxis, :]
+    optimizer = torch.optim.SGD(model.parameters(), lr=5e-2, momentum=0.9)
 
-        """only kmeans"""
-        plt_label.plot_only_kmeans(traj_[:ls_traj_length[i], :, :], trajectory[i], args)
+    for e in range(args.epoch_all):
 
-        """ run """
-        label, loss = run(traj_, trajectory[i], args)
-        # label, loss, seg_map, model_output = run(traj_, trajectory[i], args)
-        # print(len(pd.unique(label)), len(set(label)), pd.unique(label))
+        for i in range(args.START_ID, traj.shape[1]):
 
-        """plot freq"""
-        plt_label.plot_freq(label, loss)
+            if utils.check_break(i, ls_traj_length, args.END_ID):
+                # assert(ValueError("Too short data"))
+                break
 
-        #"""plt output"""
-        # plt_label.plot_ouput_entropy(model_output, trajectory[i], args, entropy)
+            print("No."+str(i)+", Length:"+str(ls_traj_length[i]))
 
-        """plot result seg"""
-        plt_label.plot_label(label, trajectory[i], args.lat, args.lon, i, args.result_dir)
+            traj_ = traj[:ls_traj_length[i], i, :]
+            traj_ = traj_[:, np.newaxis, :]
+
+            """only kmeans"""
+            #plt_label.plot_only_kmeans(traj_[:ls_traj_length[i], :, :], trajectory[i], args)
+
+            """ run """
+            label, loss = run(traj_, trajectory[i], args, model, optimizer)
+
+            """plot freq"""
+            #plt_label.plot_freq(label, loss)
+
+            """plt output"""
+            # plt_label.plot_ouput_entropy(model_output, trajectory[i], args, entropy)
+
+            """plot result seg"""
+            #plt_label.plot_label(label, trajectory[i], args.lat, args.lon, i, args.result_dir)
+
+    torch.save(vae.state_dict(), "./models/model.pkl")
 
 if __name__ == '__main__':
     PARSER = argparse.ArgumentParser(description="this is Segnet with Kmeans")
+
+    # data
     PARSER.add_argument("--animal", choices=["cel", "bird"], default="bird")
+
+    # train
     PARSER.add_argument("-e", "--epoch", type=int, default=2**6)
+    PARSER.add_argument("--epoch_all", type=int, default=2**3)
+
+    # hypara of custom loss
     PARSER.add_argument("--alpha", default=10)
     PARSER.add_argument("--lambda_p", default=0.01)
     PARSER.add_argument("--tau", default=100)
+
+    # on/off custom module
     PARSER.add_argument("--time", action="store_true")
     PARSER.add_argument("--myloss", action="store_false")
     PARSER.add_argument("--secmax", action="store_true")
+
+    # set traj id
     PARSER.add_argument("--start", type=int, default=0, help="this is start_id")
     PARSER.add_argument("--end", type=int, default=5, help="this is end_id")
+
+    # select network
     PARSER.add_argument("--net", type=str, default="segnet")
 
     ARGS_TMP = PARSER.parse_args()
     ARGSE = Args()
+
+    # translate from input arg to default arg
     ARGSE = set_hypara.set_hypara(ARGSE, ARGS_TMP)
+
     print("------------------------------ \n RUN segnet")
+    
     main(ARGSE)
