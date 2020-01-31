@@ -136,10 +136,6 @@ def run(traj, len_traj, args, model, optimizer):
     #if args.sec_argmax:
     #    plt_label.plot_num_of_same_label(ls_target_idx)
 
-    time0 = time.time() - start_time0
-    time1 = time.time() - start_time1
-    print('\n PyTorchInit: %.2f\nTimeUsed: %.2f' % (time0, time1))
-
     return im_target, ret_loss
 
 def main(args):
