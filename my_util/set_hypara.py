@@ -91,7 +91,7 @@ def get_para(args):
         lat, lon = "x", "y"
 
     # result directory
-    result_dir = "result_slide/" + args.animal + "_xy"
+    result_dir = args.animal + "_xy"
     if args.time_dim:
         result_dir += "t"
     else:
