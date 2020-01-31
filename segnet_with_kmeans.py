@@ -140,20 +140,26 @@ def run(traj, len_traj, args, model, optimizer):
 
 def main(args):
     """do run() and plot results for all trajectory"""
+
+    """set seed"""
     torch.cuda.manual_seed_all(1943)
     np.random.seed(1943)
     os.environ['CUDA_VISIBLE_DEVICES'] = str(args.GPU_ID)  # choose GPU:0
 
-    """get data """
-    trajectory = get_traj.get_traj(args.lat, args.lon, args.animal)
+    """preprocessed data"""
+    if os.path.exists(get_traj.animal_path(args.animal)):
+        logger.debug("Load df")
+        df_trajectory = get_traj.load_traj(args.animal)
+        df_trajectory = get_traj.norm_traj(df_trajectory)
+    else:
+        logger.debug("Make df, Save")
+        df_trajectory = get_traj.get_traj(args.lat, args.lon, args.animal)
+        get_traj.save_traj(args.animal, df_trajectory)
+    #df_trajectory = df_trajectory.fillna(0)
 
-    """concat time"""
-    df_trajectory = get_traj.norm_fromdir_todf_traj(trajectory, args.time_dim)
-
-    # reshape
+    """reshape data"""
     traj = df_trajectory.values
     traj = np.reshape(traj, (traj.shape[0], int(traj.shape[1]/3), 3))
-    ls_traj_length = get_traj.get_len_traj(trajectory)
 
     """define model"""
     model = utils.set_network_model(network=args.network,\
@@ -168,22 +174,33 @@ def main(args):
 
         logger.info("Train epoch: %d/%d " % (e + 1, args.epoch_all))
 
-        for i in range(args.START_ID, traj.shape[1]):
+        for i in range(args.START_ID, args.END_ID):
 
-            logger.debug("Trajectory Num: %d/%d, traj Length: %d" % (i, args.END_ID - args.START_ID, ls_traj_length[i]))
+            logger.debug("Trajectory Num: %d/%d" % \
+                (i - args.START_ID, args.END_ID - args.START_ID))
 
-            if utils.check_break(i, ls_traj_length, args.END_ID):
-                # assert(ValueError("Too short data"))
-                break
 
-            traj_ = traj[:ls_traj_length[i], i, :]
+            traj_ = traj[:, i, :]
             traj_ = traj_[:, np.newaxis, :]
 
-            """only kmeans"""
-            #plt_label.plot_only_kmeans(traj_[:ls_traj_length[i], :, :], trajectory[i], args)
+            if traj_.shape[0] < 10:
+                # assert(ValueError("Too short data"))
+                continue
+
+            """plot only kmeans"""
+            import pandas as pd
+            lat_i = pd.DataFrame(traj[:, i, 0]).dropna(how="all")
+            lat_i = lat_i.reset_index(drop=True)
+            lon_i = pd.DataFrame(traj[:, i, 1]).dropna(how="all")
+            lon_i = lon_i.reset_index(drop=True)
+            #plt_label.plot_only_kmeans(traj_, lat_i, lon_i, args)
 
             """ run """
-            label, loss = run(traj_, trajectory[i], args, model, optimizer)
+            #traj_ = np.nan_to_num(traj_)
+            traj_ = traj_[~np.isnan(traj_).any(axis=2)]
+            traj_ = traj_[:, np.newaxis, :]
+            length_traj_ = lat_i.shape[0]
+            label, loss = run(traj_, length_traj_, args, model, optimizer)
             loss_all.extend(loss)
 
             """plot result seg"""
