@@ -197,8 +197,8 @@ if __name__ == '__main__':
     PARSER.add_argument("--animal", choices=["cel", "bird"], default="bird")
 
     # train
-    PARSER.add_argument("-e", "--epoch", type=int, default=2**6, help="BATCH: num of trainging with one trajectory")
-    PARSER.add_argument("--epoch_all", type=int, default=2**3, help="EPOCH: num of training with all trajectories")
+    PARSER.add_argument("-e", "--epoch", type=int, default=2**4, help="BATCH: num of trainging with one trajectory")
+    PARSER.add_argument("--epoch_all", type=int, default=2**2, help="EPOCH: num of training with all trajectories")
 
     # hypara of custom loss
     PARSER.add_argument("--alpha", default=10)
