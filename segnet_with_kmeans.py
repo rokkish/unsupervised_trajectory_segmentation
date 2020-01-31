@@ -208,11 +208,11 @@ def main(args):
 
     torch.save(model.state_dict(), "./models/model.pkl")
 
-    plt.plot(loss)
+    plt.plot(loss_all)
     plt.ylabel("loss")
     plt.xlabel("batches")
     plt.title("loss")
-    plt.show()
+    plt.savefig("./result/loss.png")
 
 if __name__ == '__main__':
     PARSER = argparse.ArgumentParser(description="this is Segnet with Kmeans")
