@@ -19,7 +19,7 @@ def get_idx_samelabel(target):
 
 def get_argsecmax(output, target, target_idx, batch_idx):
     """ get second max with argmax"""
-    print("Batch id:", batch_idx, ", num of deleted target:", output[target_idx].data.cpu().numpy().shape[0], "\r", end="")
+    #print("Batch id:", batch_idx, ", num of deleted target:", output[target_idx].data.cpu().numpy().shape[0], "\r", end="")
     if len(target_idx) != 0:
         target[target_idx] = torch.argsort(output[target_idx], 1)[:, -2]
         # target[target_idx] = torch.argmax(output[target_idx],1)
