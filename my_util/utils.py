@@ -24,12 +24,3 @@ def set_loss_functtion(output, target, args):
         criterion = nn.CrossEntropyLoss()
         loss = criterion(output, target)
     return loss
-
-def check_break(i, ls_traj_length, end=2):
-    """ check end {used in for in main()}"""
-    ans = False
-    if ls_traj_length[i] <= 5:
-        ans = True
-    if i > end:
-        ans = True
-    return ans
