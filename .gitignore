@@ -1,7 +1,9 @@
 # dev env
 .vscode/
+log/
 
-# data
+# data results
+models/
 result_slide/
 sauce_image/
 sauce_kanezaki.py
@@ -12,9 +14,8 @@ sauce_kanezaki.py
 .ipynb_checkpoints
 worm_cnn_CV-checkpoint.py
 
-#
+# cache
 pylintrc
 my_util/__pycache__/
 my_util/unet/__pycache__/
-
 *.pyc
