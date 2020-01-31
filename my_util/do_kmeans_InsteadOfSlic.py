@@ -17,7 +17,7 @@ def do_kmeans(k, traj):
         pass
     else:
         df_traj = pd.DataFrame(traj[:, 0, :])
-        df_traj = df_traj.fillna(0)
+        df_traj = df_traj.dropna(how="all")
         # idx = np.random.permutation(df_traj.shape[0])[:k]
         # init = df_traj.iloc[idx, :]
         pred = KMeans(n_clusters=k).fit_predict(df_traj.values)
