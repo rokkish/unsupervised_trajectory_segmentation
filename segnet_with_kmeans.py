@@ -43,29 +43,40 @@ logger.addHandler(fh)
 
 device = torch.device("cuda" if torch.cuda.is_available() else 'cpu')
 
-def run(traj, df_traj_i, args, model, optimizer):
-    """ run algorithm at each trajectory"""
+def run(traj, len_traj, args, model, optimizer):
+    """
+    Run algorithm at each trajectory
+        traj        :   [np.array]      :   train data and reshape into tensor
+        len_traj    :   [int]           :   len of traj without None
+        args        :   [class]         :   hyper params
+        model       :   [model]         :
+        optimizer   :   [optimizer]     :
+    """
 
-    start_time0 = time.time()
+    def reshape_train_data(traj):
+        # reshape
+        tensor = traj.transpose((2, 0, 1))
+        # float
+        tensor = tensor.astype(np.float32)
+        # reshape
+        tensor = tensor[np.newaxis, :, :, :]
+        tensor = torch.from_numpy(tensor).to(device)
+        return tensor
 
+    logger.debug("start segmentation:")
+
+    # TODO:遅いので，事前に全軌跡のKmeansを算出，保存しといて，参照だけにする
     ret_seg_map = do_kmeans_InsteadOfSlic.handle_kmeans(\
-        k=int(traj.shape[0]/4), traj=traj, window=args.window, time_dim=args.time_dim)
+        k=int(len_traj/4), traj=traj, window=args.window, time_dim=args.time_dim)
 
     seg_map = ret_seg_map.flatten()
     seg_lab = [np.where(seg_map == u_label)[0] for u_label in np.unique(seg_map)]
 
     logger.debug("end segmentation:")
 
-    # reshape
-    tensor = traj.transpose((2, 0, 1))
-    # norm
-    tensor = tensor.astype(np.float32) / 255.0
-    # reshape
-    tensor = tensor[np.newaxis, :, :, :]
-    tensor = torch.from_numpy(tensor).to(device)
+    tensor = reshape_train_data(traj)
 
     '''train loop'''
-    start_time1 = time.time()
 
     model.train()
 
