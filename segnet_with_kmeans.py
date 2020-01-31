@@ -112,7 +112,8 @@ def run(traj, df_traj_i, args, model, optimizer):
 
         ret_loss.append(loss.item())
 
-        logger.debug("Trajectory epoch: %d/%d, loss: %d" % (i, args.END_ID - args.START_ID, loss.item()))
+        logger.debug("Trajectory epoch: %d/%d, loss: %1.5f" % \
+            (BATCH_IDX, args.train_epoch, loss.item()))
 
         if args.sec_argmax:
             ls_target_idx.extend([len(target_idx)])
@@ -223,6 +224,8 @@ if __name__ == '__main__':
     # translate from input arg to default arg
     ARGSE = set_hypara.set_hypara(ARGSE, ARGS_TMP)
 
-    print("------------------------------ \n RUN segnet")
-    
+    logger.info("Train Start")
+
     main(ARGSE)
+
+    logger.info("Train End")
