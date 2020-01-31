@@ -54,7 +54,7 @@ def run(traj, df_traj_i, args, model, optimizer):
     seg_map = ret_seg_map.flatten()
     seg_lab = [np.where(seg_map == u_label)[0] for u_label in np.unique(seg_map)]
 
-    plt_label.plot_initial_kmeans_segmentation_results(df_traj_i, args)
+    logger.debug("end segmentation:")
 
     # reshape
     tensor = traj.transpose((2, 0, 1))
@@ -82,7 +82,7 @@ def run(traj, df_traj_i, args, model, optimizer):
         output = output.permute(1, 2, 0).view(-1, args.mod_dim2)
         target = torch.argmax(output, 1)
 
-        plt_label.plot_entropy_at_each_pixel(output, args.train_epoch, BATCH_IDX)
+        #plt_label.plot_entropy_at_each_pixel(output, args.train_epoch, BATCH_IDX)
 
         if args.sec_argmax:
             target_idx = sec_argmax.get_idx_samelabel(target)
@@ -91,13 +91,13 @@ def run(traj, df_traj_i, args, model, optimizer):
         im_target = target.data.cpu().numpy()
 
         """refine"""
-        plt_label.plot_segmentresult_each_batch(im_target, df_traj_i, args, BATCH_IDX, "before")
+        #plt_label.plot_segmentresult_each_batch(im_target, df_traj_i, args, BATCH_IDX, "before")
 
         for inds in seg_lab:
             u_labels, hist = np.unique(im_target[inds], return_counts=True)
             im_target[inds] = u_labels[np.argmax(hist)]
 
-        plt_label.plot_segmentresult_each_batch(im_target, df_traj_i, args, BATCH_IDX, "after")
+        #plt_label.plot_segmentresult_each_batch(im_target, df_traj_i, args, BATCH_IDX, "after")
 
         """backward"""
         target = torch.from_numpy(im_target)
@@ -178,14 +178,8 @@ def main(args):
             label, loss = run(traj_, trajectory[i], args, model, optimizer)
             loss_all.extend(loss)
 
-            """plot freq"""
-            #plt_label.plot_freq(label, loss)
-
-            """plt output"""
-            #plt_label.plot_ouput_entropy(model_output, trajectory[i], args, entropy)
-
             """plot result seg"""
-            #plt_label.plot_label(label, trajectory[i], args.lat, args.lon, i, args.result_dir)
+            plt_label.plot_label(label, lat_i, lon_i, args.result_dir, i, e)
 
     torch.save(model.state_dict(), "./models/model.pkl")
 
