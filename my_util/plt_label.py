@@ -24,41 +24,48 @@ def plot_freq(label, loss):
     #plt.close()
     plt.show()
 
-def plot_label(label, df_traj_i, lat, lon, trip_no, result_dir):
+def plot_label(label, lat, lon, result_dir, trip_no, epoch):
     """plot all label"""
     plt.figure(figsize=(15, 5))
     plt.subplot(1, 2, 1)
-    plt.scatter(df_traj_i[lat], df_traj_i[lon], c=label, cmap="tab20", s=16)
+    plt.scatter(lat.iloc[:, 0], lon.iloc[:, 0], c=label / max(label), cmap="tab20", s=16)
     plt.title("Segmentation")
     plt.colorbar()
 
     plt.subplot(1, 2, 2)
-    plt.plot(df_traj_i[lat].values, df_traj_i[lon].values, color="white", alpha=0.2)
-    plt.scatter(df_traj_i[lat], df_traj_i[lon],
-                c=np.linspace(0, df_traj_i.shape[0], df_traj_i.shape[0]), cmap="magma", s=16)
+    plt.plot(lat.iloc[:, 0], lon.iloc[:, 0], color="white", alpha=0.2)
+    plt.scatter(lat.iloc[:, 0], lon.iloc[:, 0],
+                c=np.linspace(0, lat.shape[0], lon.shape[0]), cmap="magma", s=16)
     plt.title("Time color")
     plt.colorbar()
 
-    plt.savefig("./"+result_dir+"/"+"{:0=3}".format(trip_no)+"_all.png")
+    #TODO:mkdir
+    plt.savefig("./result/{}/segment_trip{:0=3}_epoch{:0=3}.png".format(result_dir, trip_no, epoch))
+    #plt.savefig("./"+result_dir+"/"+"{:0=3}".format(trip_no)+"_all.png")
     plt.close()
     #plt.show()
 
-    #"""plot each label"""
+    """plot each label"""
     df_label = pd.DataFrame(label)
-    df_tmp = pd.concat([df_traj_i, df_label], axis=1)
-    df_tmp.columns = [lat, lon, "label"]
+    df_tmp = pd.concat([lat, lon, df_label], axis=1)
+    df_tmp.columns = ["lat", "lon", "label"]
+
     n = len(pd.unique(label))
     n_split = n + 4
+
     plt.figure(figsize=(15, 10))
     for i in range(n):
         plt.subplot(4, int(n_split/4), i+1)
-        plt.plot(df_traj_i[lat].values, df_traj_i[lon].values, color="white", alpha=0.4)
-        plt.scatter(df_tmp.loc[df_tmp["label"] == pd.unique(label)[i]][lat],
-                    df_tmp.loc[df_tmp["label"] == pd.unique(label)[i]][lon], s=8)
+        plt.plot(lat.iloc[:, 0], lon.iloc[:, 0], color="gray", alpha=0.4)
+        plt.scatter(df_tmp.loc[df_tmp["label"] == pd.unique(label)[i]]["lat"],
+                    df_tmp.loc[df_tmp["label"] == pd.unique(label)[i]]["lon"], s=8)
         plt.title(str(i))
-    plt.savefig("./"+result_dir+"/"+"{:0=3}".format(trip_no)+"_each.png")
-    # plt.close()
-    plt.show()
+
+    plt.savefig("./result/{}/each_segment_trip{:0=3}_epoch{:0=3}.png".format(result_dir, trip_no, epoch))
+    plt.savefig("./result/each_segment.png")
+    #plt.savefig("./"+result_dir+"/"+"{:0=3}".format(trip_no)+"_each.png")
+    plt.close()
+    #plt.show()
 
 def plot_ouput_entropy(model_output, trajectory_i, args, entropy):
     """plot model output entropy"""
@@ -97,15 +104,18 @@ def plot_ouput_entropy(model_output, trajectory_i, args, entropy):
         #plt.close()
         plt.show()
 
-def plot_only_kmeans(traj_i, trajectory_i, args):
+def plot_only_kmeans(traj_i, lat, lon, args):
     """plot segmentation results with kmeans"""
     ret_seg_map = kmios.do_kmeans(k=10, traj=traj_i)
     seg_map = ret_seg_map.flatten()
     plt.figure(figsize=(10, 10))
-    plt.scatter(trajectory_i[args.lat], trajectory_i[args.lon], c=seg_map, cmap="tab20", s=16)
+    plt.scatter(lat.iloc[:, 0], lon.iloc[:, 0], c=seg_map / max(seg_map), cmap="tab20", s=16)
     plt.title("Only Kmeans")
     #ax = plt.colorbar()
-    plt.savefig("./"+args.result_dir+"/only_k.png")
+    
+    plt.savefig("./result/only_k.png")
+
+    #plt.savefig("./"+args.result_dir+"/only_k.png")
     plt.close()
     #plt.show()
 
