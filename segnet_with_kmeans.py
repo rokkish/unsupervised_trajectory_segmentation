@@ -19,7 +19,7 @@ import matplotlib.pyplot as plt
 import logging
 
 # create logger
-logger = logging.getLogger('train_unsuperpised_traj_segmentation')
+logger = logging.getLogger('train_model')
 logger.setLevel(logging.DEBUG)
 
 # create console handler and set level to debug
