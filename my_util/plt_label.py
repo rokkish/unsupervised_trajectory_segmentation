@@ -62,7 +62,7 @@ def plot_label(label, lat, lon, result_dir, trip_no, epoch):
         plt.title(str(i))
 
     plt.savefig("./result/{}/each_segment_trip{:0=3}_epoch{:0=3}.png".format(result_dir, trip_no, epoch))
-    plt.savefig("./result/each_segment.png")
+    #plt.savefig("./result/each_segment.png")
     #plt.savefig("./"+result_dir+"/"+"{:0=3}".format(trip_no)+"_each.png")
     plt.close()
     #plt.show()
@@ -104,7 +104,7 @@ def plot_ouput_entropy(model_output, trajectory_i, args, entropy):
         #plt.close()
         plt.show()
 
-def plot_only_kmeans(traj_i, lat, lon, args):
+def plot_only_kmeans(traj_i, lat, lon, args, epoch):
     """plot segmentation results with kmeans"""
     ret_seg_map = kmios.do_kmeans(k=10, traj=traj_i)
     seg_map = ret_seg_map.flatten()
@@ -113,7 +113,7 @@ def plot_only_kmeans(traj_i, lat, lon, args):
     plt.title("Only Kmeans")
     #ax = plt.colorbar()
     
-    plt.savefig("./result/only_k.png")
+    plt.savefig("./result/" + args.result_dir + "/only_k_" + str(epoch) + ".png")
 
     #plt.savefig("./"+args.result_dir+"/only_k.png")
     plt.close()
