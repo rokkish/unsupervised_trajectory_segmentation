@@ -184,6 +184,8 @@ def main(args):
 
             traj_ = traj[:, i, :]
             traj_ = traj_[:, np.newaxis, :]
+            traj_ = traj_[~np.isnan(traj_).any(axis=2)]
+            traj_ = traj_[:, np.newaxis, :]
 
             if traj_.shape[0] < 10:
                 # assert(ValueError("Too short data"))
