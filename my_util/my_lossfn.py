@@ -3,6 +3,33 @@ import torch
 import torch.nn as nn
 import numpy as np
 
+### begin region ###
+
+import logging
+
+# create logger
+logger = logging.getLogger('loss_function')
+logger.setLevel(logging.DEBUG)
+
+# create console handler and set level to debug
+sh = logging.StreamHandler()
+fh = logging.FileHandler("./log/test.log")
+sh.setLevel(logging.INFO)
+fh.setLevel(logging.DEBUG)
+
+# create formatter
+formatter = logging.Formatter('[%(asctime)s] - [%(name)s] - [%(levelname)s] - %(message)s')
+
+# add formatter to handler
+sh.setFormatter(formatter)
+fh.setFormatter(formatter)
+
+# add handler to logger
+logger.addHandler(sh)
+logger.addHandler(fh)
+
+### end region ###
+
 def my_penalty(outputs, labels, alpha, lambda_p, Tau):
     # outputs =(time, channel)
     # x =(batch, channel, time)
@@ -46,11 +73,11 @@ def my_penalty(outputs, labels, alpha, lambda_p, Tau):
     """ペナルティ項"""
     dist = dist.to(device)
     penalty = int(torch.sum(weight * dist[0, :, :]).item())
-    #print(penalty)
 
     """CrossEntropyloss"""
     ce_fn = nn.CrossEntropyLoss(ignore_index=0)
     ce_loss = ce_fn(outputs, labels)
-    #print("penalty:",lambda_p*penalty)
+
+    logger.debug("ce_loss, penalty:%1.5f, %1.5f" % (ce_loss, lambda_p * penalty))
 
     return ce_loss + lambda_p * penalty
