@@ -19,3 +19,7 @@ pylintrc
 my_util/__pycache__/
 my_util/unet/__pycache__/
 *.pyc
+
+#result
+result/bird*
+result/cel*
