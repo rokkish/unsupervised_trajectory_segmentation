@@ -197,12 +197,9 @@ def main(args):
             lat_i = lat_i.reset_index(drop=True)
             lon_i = pd.DataFrame(traj[:, i, 1]).dropna(how="all")
             lon_i = lon_i.reset_index(drop=True)
-            #plt_label.plot_only_kmeans(traj_, lat_i, lon_i, args)
+            #plt_label.plot_only_kmeans(traj_, lat_i, lon_i, args, e)
 
             """ run """
-            #traj_ = np.nan_to_num(traj_)
-            traj_ = traj_[~np.isnan(traj_).any(axis=2)]
-            traj_ = traj_[:, np.newaxis, :]
             length_traj_ = lat_i.shape[0]
             label, loss = run(traj_, length_traj_, args, model, optimizer)
             loss_all.extend(loss)
@@ -216,7 +213,7 @@ def main(args):
     plt.ylabel("loss")
     plt.xlabel("batches")
     plt.title("loss")
-    plt.savefig("./result/loss.png")
+    plt.savefig("./result/" + args.result_dir + "/loss.png")
 
 if __name__ == '__main__':
     PARSER = argparse.ArgumentParser(description="this is Segnet with Kmeans")
