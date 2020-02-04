@@ -104,9 +104,9 @@ def get_para(args):
         result_dir += "_nonmyloss"
     else:
         result_dir += "_myloss_a" + str(args.alpha) + "_p" + str(args.lambda_p) + "_tau" + str(args.Tau)
-    if not os.path.isdir("./" + result_dir):
+    if not os.path.isdir("./result/" + result_dir):
         try:
-            os.mkdir("./" + result_dir)
+            os.mkdir("./result/" + result_dir)
         except:
             current_path = os.getcwd()
             #modified_path = current_path.replace(" ", "/ ")
