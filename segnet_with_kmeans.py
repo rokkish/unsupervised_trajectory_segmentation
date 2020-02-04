@@ -222,13 +222,13 @@ if __name__ == '__main__':
     PARSER.add_argument("--animal", choices=["cel", "bird"], default="bird")
 
     # train
-    PARSER.add_argument("-e", "--epoch", type=int, default=2**4, help="BATCH: num of trainging with one trajectory")
-    PARSER.add_argument("--epoch_all", type=int, default=2**2, help="EPOCH: num of training with all trajectories")
+    PARSER.add_argument("-e", "--epoch", type=int, default=2**5, help="BATCH: num of trainging with one trajectory")
+    PARSER.add_argument("--epoch_all", type=int, default=2**3, help="EPOCH: num of training with all trajectories")
 
     # hypara of custom loss
-    PARSER.add_argument("--alpha", default=10)
-    PARSER.add_argument("--lambda_p", default=0.01)
-    PARSER.add_argument("--tau", default=100)
+    PARSER.add_argument("--alpha", type=float, default=10, help="to be bigger, enlarge d. To be smaller, ensmaller d")
+    PARSER.add_argument("--lambda_p", type=float, default=0.01)
+    PARSER.add_argument("--tau", type=float, default=100, help="to be smaller, enlarge w.")
 
     # on/off custom module
     PARSER.add_argument("--time", action="store_true")
