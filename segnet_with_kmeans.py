@@ -69,6 +69,8 @@ def run(traj, len_traj, args, model, optimizer):
     ret_seg_map = do_kmeans_InsteadOfSlic.handle_kmeans(\
         k=int(len_traj/4), traj=traj, window=args.window, time_dim=args.time_dim)
 
+    logger.debug("ret_seg_map: %s" % (ret_seg_map))
+
     seg_map = ret_seg_map.flatten()
     seg_lab = [np.where(seg_map == u_label)[0] for u_label in np.unique(seg_map)]
 
