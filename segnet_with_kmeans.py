@@ -207,6 +207,10 @@ def main(args):
             """plot result seg"""
             plt_label.plot_label(label, lat_i, lon_i, args.result_dir, i, e)
 
+            break
+
+        break
+
     torch.save(model.state_dict(), "./models/model.pkl")
 
     plt.plot(loss_all)
