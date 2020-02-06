@@ -95,22 +95,18 @@ def run(traj, len_traj, args, model, optimizer):
         output = output.permute(1, 2, 0).view(-1, args.mod_dim2)
         target = torch.argmax(output, 1)
 
-        #plt_label.plot_entropy_at_each_pixel(output, args.train_epoch, BATCH_IDX)
-
         if args.sec_argmax:
             target_idx = sec_argmax.get_idx_samelabel(target)
             target = sec_argmax.get_argsecmax(output, target, target_idx, BATCH_IDX)
 
+        plt_label.plot_entropy_at_each_pixel(output, BATCH_IDX, args, "output")
+
         im_target = target.data.cpu().numpy()
 
         """refine"""
-        #plt_label.plot_segmentresult_each_batch(im_target, df_traj_i, args, BATCH_IDX, "before")
-
         for inds in seg_lab:
             u_labels, hist = np.unique(im_target[inds], return_counts=True)
             im_target[inds] = u_labels[np.argmax(hist)]
-
-        #plt_label.plot_segmentresult_each_batch(im_target, df_traj_i, args, BATCH_IDX, "after")
 
         """backward"""
         target = torch.from_numpy(im_target)
@@ -133,10 +129,10 @@ def run(traj, len_traj, args, model, optimizer):
 
         if len(un_label) < args.MIN_LABEL_NUM:
             break
-        # plt_label.plot_entropy_at_each_batch(output, df_traj_i, args, BATCH_IDX, entropy)
+        
+        #plt_label.plot_entropy_at_each_batch(output, traj, len_traj, args, BATCH_IDX)
 
-    #if args.sec_argmax:
-    #    plt_label.plot_num_of_same_label(ls_target_idx)
+    plt_label.save_gif(args, "output")
 
     return im_target, ret_loss
 
