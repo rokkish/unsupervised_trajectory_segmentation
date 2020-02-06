@@ -1,29 +1,21 @@
 """this is plot func"""
+import os
+import glob
+
 import matplotlib.pyplot as plt
+import matplotlib.animation as animation
+
+import torch
+from PIL import Image
+
 import pandas as pd
 import numpy as np
+from scipy.stats import entropy
+
 from my_util import do_kmeans_InsteadOfSlic as kmios
 
+
 #"""these function is used in main() """
-def plot_freq(label, loss):
-    """view freq label"""
-    bins = len(pd.unique(label))
-    fig = plt.figure(figsize=(15, 5))
-    plt.style.use('dark_background')
-    ax1 = fig.add_subplot(1, 2, 1)
-    ax1.hist(label, bins=bins)
-    ax1.set_ylabel("freq")
-    ax1.set_xlabel("no.label")
-    ax1.set_title("freq of label")
-
-    ax2 = fig.add_subplot(1, 2, 2)
-    ax2.plot(loss)
-    ax2.set_ylabel("loss")
-    ax2.set_xlabel("epochs")
-    ax2.set_title("loss")
-    #plt.close()
-    plt.show()
-
 def plot_label(label, lat, lon, result_dir, trip_no, epoch):
     """plot all label"""
     plt.figure(figsize=(15, 5))
@@ -67,43 +59,6 @@ def plot_label(label, lat, lon, result_dir, trip_no, epoch):
     plt.close()
     #plt.show()
 
-def plot_ouput_entropy(model_output, trajectory_i, args, entropy):
-    """plot model output entropy"""
-    output = model_output.detach().cpu().numpy().copy()
-    tmp = output - output.min(1).reshape([600, 1])
-    tmp = tmp  / tmp.max(1).reshape([600, 1])
-    ent = []
-    for t in range(600):
-        if np.isnan(trajectory_i[args.lat][t]):
-            ent.append(trajectory_i[args.lat][t])
-        else:
-            tmpt = np.sort(tmp[t, :])[::-1]
-            ent.append(tmpt[0]-tmpt[1])
-            # ent.append(entropy(tmp[t,:32]))
-        plt.scatter(trajectory_i[args.lat], trajectory_i[args.lon], c=ent)
-        plt.title("sub_1st_2nd")
-        plt.colorbar()
-        plt.savefig("./"+args.result_dir+"/sub_firstsecond.png")
-        #plt.close()
-        plt.show()
-    tmp = output - output.min(1).reshape([600, 1])
-    tmp = tmp  / tmp.sum(1).reshape([600, 1])
-    ent = []
-    for t in range(600):
-        if np.isnan(trajectory_i[args.lat][t]):
-            ent.append(trajectory_i[args.lat][t])
-        else:
-            #tmpt = np.sort(tmp[t,:])[::-1]
-            #ent.append(tmpt[0]-tmpt[1])
-            ent.append(entropy(tmp[t, :32]))
-        plt.figure(figsize=(8, 5))
-        plt.scatter(trajectory_i[args.lat], trajectory_i[args.lon], c=ent)
-        plt.title("entropy")
-        plt.colorbar()
-        plt.savefig("./"+args.result_dir+"/entropy.png")
-        #plt.close()
-        plt.show()
-
 def plot_only_kmeans(traj_i, lat, lon, args, epoch):
     """plot segmentation results with kmeans"""
     ret_seg_map = kmios.do_kmeans(k=10, traj=traj_i)
@@ -120,71 +75,62 @@ def plot_only_kmeans(traj_i, lat, lon, args, epoch):
     #plt.show()
 
 #"""these function is used in run() """
+def plot_entropy_at_each_pixel(output, batch_idx, args, file_name):
+    """plot entropy"""
+    for i in range(output.shape[1]):
+        tmp = output[:, i]
+        mat_i = torch.stack((tmp, tmp, tmp, tmp, tmp, tmp, tmp, tmp), dim=0)
+        mat_i = torch.cat((mat_i, mat_i), dim=0)
+        if i == 0:
+            mat = mat_i
+        else:
+            mat = torch.cat((mat, mat_i), dim=0)
 
-def plot_initial_kmeans_segmentation_results(df_traj_i, args):
-    """ plot initial kmeans Segmentation"""
-    plt.figure(figsize=(10, 5))
-    plt.scatter(df_traj_i[args.lat], df_traj_i[args.lon], cmap="tab20", s=16)
-    plt.title("Kmeans")
-    plt.savefig("./"+args.result_dir+"/k_.png")
-    plt.close()
+    mat = pd.DataFrame(mat.detach().cpu().numpy())
+    mat = (mat - mat.min()) / (mat.max() - mat.min())
+    mat = torch.from_numpy(mat.values)
+    plt.figure(figsize=(10, 10))
+    plt.imshow(mat)
+    #plt.colorbar()
+    plt.title("plt entropy at each pixel: " + str(batch_idx))
+    plt.xlabel("t")
+    plt.ylabel("class [0-31]*16")
+    plt.savefig("./result/{}/{}_{:0=3}.png".format(args.result_dir, file_name, batch_idx))
     #plt.show()
+    plt.close()
 
-def plot_entropy_at_each_pixel(output, train_epoch, batch_idx):
-    """ plot entropy"""
-    if batch_idx == train_epoch-1:
-        #print(output.shape)
-        plt.figure(figsize=(10, 5))
-        plt.imshow(output.detach().cpu())
-        plt.colorbar()
-        plt.title("plt entropy at each pixel")
-        plt.close()
-        #plt.show()
+def save_gif(args, file_name="output"):
 
-def plot_segmentresult_each_batch(im_target, df_traj_i, args, batch_idx, file_name):
-    """ Plot segment traj colored by cluster"""
-    if batch_idx%5 == 0 and batch_idx < 30:
-        #print("batch %.1f"%(batch_idx), end="")
-        plt.figure(figsize=(10, 5))
-        plt.style.use('dark_background')
-        plt.scatter(df_traj_i[args.lat], df_traj_i[args.lon], c=im_target, cmap="tab20", s=16)
-        plt.title("Segmentation:"+str(batch_idx))
-        #ax = plt.colorbar()
-        plt.title("Plot" + str(file_name) + "refine")
-        plt.savefig("./"+args.result_dir+"/"+str(file_name)+"_refine"+str(batch_idx)+".png")
-        plt.close()
-        #plt.show()
-    else:
-        pass
+    files = sorted(glob.glob("result/" + args.result_dir + "/" + file_name + "_*.png"))
+    images = list(map(lambda file: Image.open(file), files))
+    images[0].save("result/" + args.result_dir + "/" + file_name + ".gif",\
+        save_all=True, append_images=images[1:], duration=500, loop=1)
 
-def plot_entropy_at_each_batch(output, df_traj_i, args, batch_idx, entropy):
+    def remove_glob(files):
+        for path in files:
+            os.remove(path)
+
+    remove_glob(files)
+
+def plot_entropy_at_each_batch(output, traj, len_traj, args, batch_idx):
     """ plot entropy each batch"""
     output_ = output.detach().cpu().numpy().copy()
-    tmp = output_ - output_.min(1).reshape([600, 1])
-    tmp = tmp / tmp.sum(1).reshape([600, 1])
+    tmp = output_ - output_.min(1).reshape([len_traj, 1])
+    tmp = tmp / tmp.sum(1).reshape([len_traj, 1])
     ent = []
-    for t in range(600):
-        if np.isnan(df_traj_i[args.lat][t]):
-            ent.append(df_traj_i[args.lat][t])
+    for t in range(len_traj):
+        if np.isnan(traj[args.lat][t]):
+            ent.append(traj[args.lat][t])
         else:
             #tmpt = np.sort(tmp[t,:])[::-1]
             #ent.append(tmpt[0]-tmpt[1])
             ent.append(entropy(tmp[t, :32]))
+
     #entropy all plot
     plt.figure(figsize=(8, 5))
-    plt.scatter(df_traj_i[args.lat], df_traj_i[args.lon], c=ent)
+    plt.scatter(traj[args.lat], traj[args.lon], c=ent)
     plt.title("entropy")
     plt.colorbar()
-    plt.savefig("./"+args.result_dir+"/entropy_"+str(batch_idx)+".png")
+    plt.savefig("./result/"+args.result_dir+"/entropy_"+str(batch_idx)+".png")
     plt.close()
     # plt.show()
-
-def plot_num_of_same_label(ls_target_idx):
-    """ plot num same label all epoch"""
-    plt.figure(figsize=(3, 3))
-    plt.style.use('dark_background')
-    plt.plot(np.array(ls_target_idx))
-    plt.title("num of same label")
-    plt.xlabel("epoch")
-    #plt.close()
-    plt.show()
