@@ -10,6 +10,7 @@ sauce_kanezaki.py
 *.csv
 
 # useless notebook, .py
+notebooks/
 *.ipynb
 .ipynb_checkpoints
 worm_cnn_CV-checkpoint.py
