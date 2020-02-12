@@ -43,7 +43,7 @@ logger.addHandler(fh)
 
 device = torch.device("cuda" if torch.cuda.is_available() else 'cpu')
 
-def run(traj, len_traj, args, model, optimizer):
+def run(traj, len_traj, args, model, optimizer, number_traj, epoch):
     """
     Run algorithm at each trajectory
         traj        :   [np.array]      :   train data and reshape into tensor
@@ -69,7 +69,7 @@ def run(traj, len_traj, args, model, optimizer):
     ret_seg_map = do_kmeans_InsteadOfSlic.handle_kmeans(\
         k=int(len_traj/4), traj=traj, window=args.window, time_dim=args.time_dim)
 
-    logger.debug("ret_seg_map: %s" % (ret_seg_map))
+    #logger.debug("ret_seg_map: %s" % (ret_seg_map))
 
     seg_map = ret_seg_map.flatten()
     seg_lab = [np.where(seg_map == u_label)[0] for u_label in np.unique(seg_map)]
@@ -132,7 +132,7 @@ def run(traj, len_traj, args, model, optimizer):
         
         #plt_label.plot_entropy_at_each_batch(output, traj, len_traj, args, BATCH_IDX)
 
-    plt_label.save_gif(args, "output")
+    plt_label.save_gif(args, number_traj, epoch)
 
     return im_target, ret_loss
 
@@ -177,6 +177,8 @@ def main(args):
             logger.debug("Trajectory Num: %d/%d" % \
                 (i - args.START_ID, args.END_ID - args.START_ID))
 
+            #if i != 7 and i != 20:
+            #    continue
 
             traj_ = traj[:, i, :]
             traj_ = traj_[:, np.newaxis, :]
@@ -197,15 +199,11 @@ def main(args):
 
             """ run """
             length_traj_ = lat_i.shape[0]
-            label, loss = run(traj_, length_traj_, args, model, optimizer)
+            label, loss = run(traj_, length_traj_, args, model, optimizer, i, e)
             loss_all.extend(loss)
 
             """plot result seg"""
             plt_label.plot_label(label, lat_i, lon_i, args.result_dir, i, e)
-
-            break
-
-        break
 
     torch.save(model.state_dict(), "./models/model.pkl")
 

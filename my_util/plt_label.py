@@ -31,7 +31,6 @@ def plot_label(label, lat, lon, result_dir, trip_no, epoch):
     plt.title("Time color")
     plt.colorbar()
 
-    #TODO:mkdir
     plt.savefig("./result/{}/segment_trip{:0=3}_epoch{:0=3}.png".format(result_dir, trip_no, epoch))
     #plt.savefig("./"+result_dir+"/"+"{:0=3}".format(trip_no)+"_all.png")
     plt.close()
@@ -99,11 +98,11 @@ def plot_entropy_at_each_pixel(output, batch_idx, args, file_name):
     #plt.show()
     plt.close()
 
-def save_gif(args, file_name="output"):
+def save_gif(args, number_traj, epoch, file_name="output"):
 
     files = sorted(glob.glob("result/" + args.result_dir + "/" + file_name + "_*.png"))
     images = list(map(lambda file: Image.open(file), files))
-    images[0].save("result/" + args.result_dir + "/" + file_name + ".gif",\
+    images[0].save("result/{}/{}_traj{:0=3}_epoch{:0=3}.gif".format(args.result_dir, file_name, number_traj, epoch),\
         save_all=True, append_images=images[1:], duration=500, loop=1)
 
     def remove_glob(files):
