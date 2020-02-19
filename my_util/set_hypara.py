@@ -71,6 +71,9 @@ def set_hypara(args, tmp):
 
     args.network = tmp.net
 
+    args.lr = tmp.lr
+    args.momentum = tmp.momentum
+
     args.lat, args.lon, args.result_dir = get_para(args)
 
     if hypara_check(int(tmp.start), int(tmp.end), get_numdata(args.animal)):
