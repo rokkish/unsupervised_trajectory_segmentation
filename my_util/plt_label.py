@@ -45,11 +45,18 @@ def plot_label(label, lat, lon, result_dir, trip_no, epoch):
     n_split = n + 4
 
     plt.figure(figsize=(15, 10))
+    plt.rcParams["font.size"] = 8
     for i in range(n):
         plt.subplot(4, int(n_split/4), i+1)
+
         plt.plot(lat.iloc[:, 0], lon.iloc[:, 0], color="gray", alpha=0.4)
+
         plt.scatter(df_tmp.loc[df_tmp["label"] == pd.unique(label)[i]]["lat"],
                     df_tmp.loc[df_tmp["label"] == pd.unique(label)[i]]["lon"], s=8)
+
+        indexs_list = df_tmp.loc[df_tmp["label"] == pd.unique(label)[i]].index.values
+        plt.text(0.5, 0.5, "Time from {} to{}".format(min(indexs_list), max(indexs_list)), alpha=0.5)
+
         plt.title(str(i))
 
     plt.savefig("./result/{}/each_segment_trip{:0=3}_epoch{:0=3}.png".format(result_dir, trip_no, epoch))
@@ -94,6 +101,7 @@ def plot_entropy_at_each_pixel(output, batch_idx, args, file_name):
     plt.title("plt entropy at each pixel: " + str(batch_idx))
     plt.xlabel("t")
     plt.ylabel("class [0-31]*16")
+    plt.yticks(np.arange(0, mat.shape[0], 16))
     plt.savefig("./result/{}/{}_{:0=3}.png".format(args.result_dir, file_name, batch_idx))
     #plt.show()
     plt.close()
