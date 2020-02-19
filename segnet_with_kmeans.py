@@ -163,7 +163,7 @@ def main(args):
     model = utils.set_network_model(network=args.network,\
         mod_dim1=args.mod_dim1, mod_dim2=args.mod_dim2, device=device)
 
-    optimizer = torch.optim.SGD(model.parameters(), lr=5e-2, momentum=0.9)
+    optimizer = torch.optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum)
 
     """catch loss"""
     loss_all = []
@@ -239,6 +239,10 @@ if __name__ == '__main__':
 
     # select network
     PARSER.add_argument("--net", type=str, default="segnet")
+
+    # train high param
+    PARSER.add_argument("--lr", type=float, default=0.05, help="learing rate")
+    PARSER.add_argument("--momentum", type=float, default=0.9, help="learing rate")
 
     ARGS_TMP = PARSER.parse_args()
     ARGSE = Args()
