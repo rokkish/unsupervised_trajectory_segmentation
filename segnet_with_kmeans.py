@@ -7,6 +7,7 @@ import argparse
 import time
 import os
 import numpy as np
+import pandas as pd
 import torch
 
 from my_util import get_traj, plt_label, set_hypara, sec_argmax, Args
@@ -136,14 +137,60 @@ def run(traj, len_traj, args, model, optimizer, number_traj, epoch):
 
     return im_target, ret_loss
 
-def main(args):
-    """do run() and plot results for all trajectory"""
+def train(args, traj, model, optimizer):
 
-    """set seed"""
-    torch.cuda.manual_seed_all(1943)
-    np.random.seed(1943)
-    os.environ['CUDA_VISIBLE_DEVICES'] = str(args.GPU_ID)  # choose GPU:0
+    def reshape_traj(i):
+        traj_ = traj[:, i, :]
+        traj_ = traj_[~np.isnan(traj_).any(axis=1)]
+        traj_ = traj_[:, np.newaxis, :]
+        return traj_
 
+    def get_latlon(i):
+        lat_i = pd.DataFrame(traj[:, i, 0]).dropna(how="all")
+        lat_i = lat_i.reset_index(drop=True)
+        lon_i = pd.DataFrame(traj[:, i, 1]).dropna(how="all")
+        lon_i = lon_i.reset_index(drop=True)
+        return lat_i, lon_i
+
+    loss_all = []
+
+    for e in range(args.epoch_all):
+
+        logger.info("Train epoch: %d/%d " % (e + 1, args.epoch_all))
+
+        for i in range(args.START_ID, args.END_ID):
+
+            logger.debug("Trajectory Num: %d/%d" % (i - args.START_ID, args.END_ID - args.START_ID))
+
+            traj_ = reshape_traj(i)
+
+            if traj_.shape[0] < 10:
+                # assert(ValueError("Too short data"))
+                continue
+
+            """get lat, lon for plot only kmeans"""
+            lat_i, lon_i = get_latlon(i)
+            #plt_label.plot_only_kmeans(traj_, lat_i, lon_i, args, e)
+
+            """ run """
+            length_traj_ = lat_i.shape[0]
+            label, loss = run(traj_, length_traj_, args, model, optimizer, i, e)
+            loss_all.extend(loss)
+
+            """plot result seg"""
+            plt_label.plot_label(label, lat_i, lon_i, args.result_dir, i, e)
+
+        torch.save(label, "result/{}/trip{:0=3}.pkl".format(args.result_dir, i))
+
+    torch.save(model.state_dict(), "./models/model.pkl")
+
+    plt.plot(loss_all)
+    plt.ylabel("loss")
+    plt.xlabel("batches")
+    plt.title("loss")
+    plt.savefig("./result/" + args.result_dir + "/loss.png")
+
+def load_data(args):
     """preprocessed data"""
     if os.path.exists(get_traj.animal_path(args.animal)):
         logger.debug("Load df")
@@ -158,60 +205,23 @@ def main(args):
     """reshape data"""
     traj = df_trajectory.values
     traj = np.reshape(traj, (traj.shape[0], int(traj.shape[1]/3), 3))
+    return traj
 
-    """define model"""
+def main(args):
+    """do trian(), run() and plot results for all trajectory"""
+
+    torch.cuda.manual_seed_all(1943)
+    np.random.seed(1943)
+    os.environ['CUDA_VISIBLE_DEVICES'] = str(args.GPU_ID)
+
+    traj = load_data(args)
+
     model = utils.set_network_model(network=args.network,\
         mod_dim1=args.mod_dim1, mod_dim2=args.mod_dim2, device=device)
 
     optimizer = torch.optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum)
 
-    """catch loss"""
-    loss_all = []
-
-    for e in range(args.epoch_all):
-
-        logger.info("Train epoch: %d/%d " % (e + 1, args.epoch_all))
-
-        for i in range(args.START_ID, args.END_ID):
-
-            logger.debug("Trajectory Num: %d/%d" % \
-                (i - args.START_ID, args.END_ID - args.START_ID))
-
-            #if i != 7 and i != 20:
-            #    continue
-
-            traj_ = traj[:, i, :]
-            traj_ = traj_[:, np.newaxis, :]
-            traj_ = traj_[~np.isnan(traj_).any(axis=2)]
-            traj_ = traj_[:, np.newaxis, :]
-
-            if traj_.shape[0] < 10:
-                # assert(ValueError("Too short data"))
-                continue
-
-            """plot only kmeans"""
-            import pandas as pd
-            lat_i = pd.DataFrame(traj[:, i, 0]).dropna(how="all")
-            lat_i = lat_i.reset_index(drop=True)
-            lon_i = pd.DataFrame(traj[:, i, 1]).dropna(how="all")
-            lon_i = lon_i.reset_index(drop=True)
-            #plt_label.plot_only_kmeans(traj_, lat_i, lon_i, args, e)
-
-            """ run """
-            length_traj_ = lat_i.shape[0]
-            label, loss = run(traj_, length_traj_, args, model, optimizer, i, e)
-            loss_all.extend(loss)
-
-            """plot result seg"""
-            plt_label.plot_label(label, lat_i, lon_i, args.result_dir, i, e)
-
-    torch.save(model.state_dict(), "./models/model.pkl")
-
-    plt.plot(loss_all)
-    plt.ylabel("loss")
-    plt.xlabel("batches")
-    plt.title("loss")
-    plt.savefig("./result/" + args.result_dir + "/loss.png")
+    train(args, traj, model, optimizer)
 
 if __name__ == '__main__':
     PARSER = argparse.ArgumentParser(description="this is Segnet with Kmeans")
