@@ -11,7 +11,7 @@ import pandas as pd
 import torch
 
 from my_util import get_traj, plt_label, set_hypara, sec_argmax, Args
-from my_util import do_kmeans_InsteadOfSlic, utils
+from my_util import do_kmeans_InsteadOfSlic, utils, analyze_segmentation
 
 import matplotlib.pyplot as plt
 
@@ -179,6 +179,8 @@ def train(args, traj, model, optimizer):
 
             """plot result seg"""
             plt_label.plot_label(label, lat_i, lon_i, args.result_dir, i, e)
+
+        analyze_segmentation.analyze(label, args.animal, args.result_dir, i, e)
 
         torch.save(label, "result/{}/trip{:0=3}.pkl".format(args.result_dir, i))
 
