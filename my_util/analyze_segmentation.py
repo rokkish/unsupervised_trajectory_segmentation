@@ -123,6 +123,31 @@ def label_trans(label):
 
     return sorted(label_trans_list)
 
+def re_label(label):
+    ret = []
+    dic = {}# {label:index}
+
+    for i, x in enumerate(label):
+
+        if i == 0:
+
+            dic[x] = len(dic.keys())
+
+        else:
+
+            if x not in dic.keys():
+
+                dic[x] = len(dic.keys())
+
+    for i, x in enumerate(label):
+
+        ret.append(dic[x])
+
+    logger.debug(label)
+    logger.debug(dic)
+    logger.debug(ret)
+    return ret
+
 class Worm(object):
     
     def __init__(self, traj_id, label):
@@ -132,7 +157,7 @@ class Worm(object):
         #HACK:too long load
         self.df_worm = load_df("../worm_data/worm_df_all_data.pkl", "x", "y", "cel")
         self.label_trans_list = label_trans(self.label)
-
+        self.re_label_list = re_label(self.label)
 
     def calc_data(self):
 
@@ -167,6 +192,7 @@ class Bird(object):
         self.label = label
         self.df_bird = load_df("../bird_data/bird_df_all_data.pkl", "latitude", "longitude", "bird")
         self.label_trans_list = label_trans(self.label)
+        self.re_label_list = re_label(self.label)
 
     def calc_data(self):
         df_speed = self.df_bird.iloc[:, self.traj_id].dropna(how="all")
