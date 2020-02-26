@@ -24,3 +24,4 @@ my_util/unet/__pycache__/
 #result
 result/bird*
 result/cel*
+result/ablation*
