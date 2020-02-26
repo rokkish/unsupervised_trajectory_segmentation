@@ -178,7 +178,8 @@ def train(args, traj, model, optimizer):
             loss_all.extend(loss)
 
             """plot result seg"""
-            plt_label.plot_label(label, lat_i, lon_i, args.result_dir, i, e)
+            analyze_segmentation.plot_relabel(label, lat_i, lon_i, \
+                args.animal, args.result_dir, i, e)
 
         analyze_segmentation.analyze(label, args.animal, args.result_dir, i, e)
 

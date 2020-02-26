@@ -248,3 +248,7 @@ def Plot_Calc_Data_by_label(Animal, result_dir, epoch):
 def analyze(label, animal, result_dir, traj_id, epoch):
     Animal = set_animal(traj_id, label, animal)
     Plot_Calc_Data_by_label(Animal, result_dir, epoch)
+
+def plot_relabel(label, lat, lon, animal, result_dir, traj_id, epoch):
+    Animal = set_animal(traj_id, label, animal)
+    Plot_Label_Raw_Data(Animal, lat, lon, traj_id, result_dir, epoch)
