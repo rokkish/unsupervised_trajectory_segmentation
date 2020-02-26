@@ -221,26 +221,25 @@ def set_animal(traj_id, label, animal):
 
 def Plot_Calc_Data_by_label(Animal, result_dir, epoch):
 
-    n = int(np.ceil(np.sqrt(len(Animal.label_trans_list)))) #必要分割数n
-
-    fig, ax = plt.subplots(nrows=n, ncols=n, figsize=(10, 10))
-
     df = Animal.calc_data()
 
-    for i in range(len(Animal.label_trans_list)-1):
+    fig, ax = plt.subplots(nrows=df.shape[1], ncols=1, figsize=(10, 10), sharex=True)
 
-        s, e = Animal.label_trans_list[i], Animal.label_trans_list[i+1]
+    cmap = plt.get_cmap("tab20")
 
-        df_tmp = df.iloc[s:e]
+    for j in range(df.shape[1]):
 
-        logger.debug(df_tmp.shape)
+        ax[j].plot(df.iloc[:, j], color="gray")
 
-        if df_tmp.empty:
-            continue
+        for i in range(len(Animal.label_trans_list)-1):
 
-        df_tmp.plot(ax=ax[i//n, i%n], legend=(i==0), alpha=0.75, ylim=[df.min().min(), df.max().max()])
+            s, e = Animal.label_trans_list[i], Animal.label_trans_list[i+1]
 
-        ax[i//n, i%n].set_title("Seg:{}, Len:{}".format(i, e-s))
+            ax[j].axvspan(s, e, alpha=0.35, color=cmap(Animal.re_label_list[s]))
+
+            ax[j].set_ylabel(df.columns[j], fontsize=15)
+
+    ax[df.shape[1]-1].set_xlabel("time", fontsize=15)
 
     plt.savefig("result/{}/analyze_trip{:0=3}_epoch{:0=3}.png".format(result_dir, Animal.pure_id, epoch))
     plt.close()
