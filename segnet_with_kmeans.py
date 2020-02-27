@@ -257,6 +257,8 @@ if __name__ == '__main__':
     PARSER.add_argument("--lr", type=float, default=0.05, help="learing rate")
     PARSER.add_argument("--momentum", type=float, default=0.9, help="learing rate")
 
+    PARSER.add_argument("-d", default="", help="header of result dir name, result/d~")
+
     ARGS_TMP = PARSER.parse_args()
     ARGSE = Args()
 

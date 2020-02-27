@@ -46,7 +46,7 @@ def get_numdata(animal):
     if animal == "cel":
         num_data = 300
     elif animal == "bird":
-        num_data = 30
+        num_data = 203
     return num_data
 
 def hypara_check(start, end, num_data):
@@ -74,6 +74,8 @@ def set_hypara(args, tmp):
     args.lr = tmp.lr
     args.momentum = tmp.momentum
 
+    args.d = tmp.d
+
     args.lat, args.lon, args.result_dir = get_para(args)
 
     if hypara_check(int(tmp.start), int(tmp.end), get_numdata(args.animal)):
@@ -94,7 +96,7 @@ def get_para(args):
         lat, lon = "x", "y"
 
     # result directory
-    result_dir = args.animal + "_xy"
+    result_dir = args.d + "_" + args.animal + "_xy"
     if args.time_dim:
         result_dir += "t"
     else:
