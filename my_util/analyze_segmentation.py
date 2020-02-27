@@ -163,6 +163,8 @@ class Worm(object):
 
         df_dx = self.df_worm.iloc[:, self.traj_id].diff().dropna(how="all")
         df_dy = self.df_worm.iloc[:, self.traj_id + 1].diff().dropna(how="all")
+        df_dx = df_dx.reset_index(drop=True)
+        df_dy = df_dy.reset_index(drop=True)
         df_dx_delay = pd.concat([df_dx.iloc[1:], pd.Series(df_dx.iloc[-1])], axis=0)
         df_dy_delay = pd.concat([df_dy.iloc[1:], pd.Series(df_dy.iloc[-1])], axis=0)
         df_dx_delay = df_dx_delay.reset_index(drop=True)
@@ -171,7 +173,7 @@ class Worm(object):
         df_speed = np.sqrt(np.power(df_dx, 2) + np.power(df_dy, 2))
         df_speed_delay = np.sqrt(np.power(df_dx_delay, 2) + np.power(df_dy_delay, 2))
         df_angle = np.arccos((df_dx * df_dx_delay + df_dy * df_dy_delay) / (df_speed * df_speed_delay))
-        df_angle = np.rad2deg(df_angle) / 180.0
+        df_angle = np.rad2deg(df_angle)
         df_acc = df_speed.diff().dropna(how="all")
         df_turn = self.df_worm.iloc[:df_acc.shape[0], self.traj_id + 4].dropna(how="all")
 
