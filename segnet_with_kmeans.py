@@ -148,25 +148,32 @@ def train(args, traj, model, optimizer):
         lon_i = lon_i.reset_index(drop=True)
         return lat_i, lon_i
 
-    loss_all = []
+    def plt_loss(loss_all, traj_id):
+        plt.plot(loss_all)
+        plt.ylabel("loss")
+        plt.xlabel("batches")
+        plt.title("loss")
+        plt.savefig("./result/{}/loss_trip{:0=3}.png".format(args.result_dir, traj_id))
 
-    for e in range(args.epoch_all):
+    for i in range(args.START_ID, args.END_ID):
 
-        logger.info("Train epoch: %d/%d " % (e + 1, args.epoch_all))
+        loss_all = []
 
-        for i in range(args.START_ID, args.END_ID):
+        logger.debug("Trajectory Num: %d/%d" % (i - args.START_ID, args.END_ID - args.START_ID))
 
-            logger.debug("Trajectory Num: %d/%d" % (i - args.START_ID, args.END_ID - args.START_ID))
+        traj_ = reshape_traj(i)
 
-            traj_ = reshape_traj(i)
+        if traj_.shape[0] < 10:
+            # assert(ValueError("Too short data"))
+            continue
 
-            if traj_.shape[0] < 10:
-                # assert(ValueError("Too short data"))
-                continue
+        """get lat, lon for plot only kmeans"""
+        lat_i, lon_i = get_latlon(i)
+        #plt_label.plot_only_kmeans(traj_, lat_i, lon_i, args, e)
 
-            """get lat, lon for plot only kmeans"""
-            lat_i, lon_i = get_latlon(i)
-            #plt_label.plot_only_kmeans(traj_, lat_i, lon_i, args, e)
+        for e in range(args.epoch_all):
+
+            logger.info("Train epoch: %d/%d " % (e + 1, args.epoch_all))
 
             """ run """
             length_traj_ = lat_i.shape[0]
@@ -177,17 +184,14 @@ def train(args, traj, model, optimizer):
             analyze_segmentation.plot_relabel(label, lat_i, lon_i, \
                 args.animal, args.result_dir, i, e)
 
-        analyze_segmentation.analyze(label, args.animal, args.result_dir, i, e)
+            analyze_segmentation.analyze(label, args.animal, args.result_dir, i, e)
 
         torch.save(label, "result/{}/trip{:0=3}.pkl".format(args.result_dir, i))
 
+        plt_loss(loss_all, traj_id=i)
+
     torch.save(model.state_dict(), "./models/model.pkl")
 
-    plt.plot(loss_all)
-    plt.ylabel("loss")
-    plt.xlabel("batches")
-    plt.title("loss")
-    plt.savefig("./result/" + args.result_dir + "/loss.png")
 
 def load_data(args):
     """preprocessed data"""
