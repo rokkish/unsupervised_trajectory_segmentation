@@ -159,6 +159,13 @@ def train(args, traj, model, optimizer):
 
         loss_all = []
 
+        del model, optimizer
+
+        model = utils.set_network_model(network=args.network,\
+            mod_dim1=args.mod_dim1, mod_dim2=args.mod_dim2, device=device)
+
+        optimizer = torch.optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum)
+
         logger.debug("Trajectory Num: %d/%d" % (i - args.START_ID, args.END_ID - args.START_ID))
 
         traj_ = reshape_traj(i)
