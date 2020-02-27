@@ -27,3 +27,5 @@ result/cel*
 result/ablation*
 result/del*
 result/test*
+*.gif
+*.pkl
