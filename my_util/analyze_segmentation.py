@@ -248,28 +248,20 @@ def Plot_Calc_Data_by_label(Animal, result_dir, epoch):
 
 def Plot_Label_Raw_Data(Animal, lat, lon, traj_id, result_dir, epoch):
     """plot all label"""
-    plt.figure(figsize=(15, 5))
-    fig, ax = plt.subplots(nrows=1, ncols=3)
+    plt.figure(figsize=(10, 10))
 
     cmap = plt.get_cmap("tab20")
 
     for i in range(len(Animal.label_trans_list) - 1):
         s, e = Animal.label_trans_list[i], Animal.label_trans_list[i + 1]
-        ax[0].plot(lat.iloc[s:e + 1, 0], lon.iloc[s:e + 1, 0], c=cmap(Animal.re_label_list[s]), alpha=0.2)
-        ax[0].scatter(lat.iloc[s:e + 1, 0], lon.iloc[s:e + 1, 0], c=cmap(Animal.re_label_list[s]), s=8, alpha=0.35)
+        plt.plot(lat.iloc[s:e + 1, 0], lon.iloc[s:e + 1, 0], c=cmap(Animal.re_label_list[s]), alpha=0.2)
+        plt.scatter(lat.iloc[s:e + 1, 0], lon.iloc[s:e + 1, 0], c=cmap(Animal.re_label_list[s]), s=8, alpha=0.5)
+        plt.text(lat.iloc[s, 0], lon.iloc[s, 0], "{}:{}~{}".format(Animal.re_label_list[s], s, e), color=cmap(Animal.re_label_list[s]), size=10, alpha=0.5)
 
-    ax[0].set_title("Segmentation Result", fontsize=15)
-    ax[0].set_xlabel("x", fontsize=15)
-    ax[0].set_ylabel("y", fontsize=15)
+    plt.title("Segmentation Result", fontsize=15)
+    plt.xlabel("x", fontsize=15)
+    plt.ylabel("y", fontsize=15)
 
-    ax[1].plot(lat.iloc[:, 0], lon.iloc[:, 0], color="gray", alpha=0.2)
-    ax[1].scatter(lat.iloc[:, 0], lon.iloc[:, 0],
-                c=np.linspace(0, lat.shape[0], lon.shape[0]), cmap="magma", s=16)
-    ax[1].set_title("Time color", fontsize=15)
-    ax[1].set_xlabel("x", fontsize=15)
-    ax[1].set_ylabel("y", fontsize=15)
-
-    #TODO:軸表示
     plt.savefig("./result/{}/segment_trip{:0=3}_epoch{:0=3}.png".format(result_dir, traj_id, epoch))
     plt.close()
 
