@@ -83,9 +83,8 @@ def run(traj, len_traj, args, model, optimizer, number_traj, epoch):
 
     model.train()
 
-    # loss every batch, num of
+    # loss every batch
     ret_loss = []
-    ls_target_idx = []
 
     for BATCH_IDX in range(args.train_epoch):
 
@@ -124,9 +123,6 @@ def run(traj, len_traj, args, model, optimizer, number_traj, epoch):
 
         logger.debug("Trajectory epoch: %d/%d, loss: %1.5f" % \
             (BATCH_IDX, args.train_epoch, loss.item()))
-
-        if args.sec_argmax:
-            ls_target_idx.extend([len(target_idx)])
 
         if len(un_label) < args.MIN_LABEL_NUM:
             break
