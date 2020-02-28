@@ -65,21 +65,6 @@ def plot_label(label, lat, lon, result_dir, trip_no, epoch):
     plt.close()
     #plt.show()
 
-def plot_only_kmeans(traj_i, lat, lon, args, epoch):
-    """plot segmentation results with kmeans"""
-    ret_seg_map = kmios.do_kmeans(k=10, traj=traj_i)
-    seg_map = ret_seg_map.flatten()
-    plt.figure(figsize=(10, 10))
-    plt.scatter(lat.iloc[:, 0], lon.iloc[:, 0], c=seg_map / max(seg_map), cmap="tab20", s=16)
-    plt.title("Only Kmeans")
-    #ax = plt.colorbar()
-    
-    plt.savefig("./result/" + args.result_dir + "/only_k_" + str(epoch) + ".png")
-
-    #plt.savefig("./"+args.result_dir+"/only_k.png")
-    plt.close()
-    #plt.show()
-
 #"""these function is used in run() """
 def plot_entropy_at_each_pixel(output, batch_idx, args, file_name):
     """plot entropy"""
