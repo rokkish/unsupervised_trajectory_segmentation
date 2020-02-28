@@ -191,23 +191,30 @@ class Bird(object):
     
     def __init__(self, traj_id, label):
         self.pure_id = traj_id
-        self.traj_id = traj_id * 7 + 4
         self.label = label
         self.df_bird = load_df("../bird_data/bird_df_all_data.pkl", "latitude", "longitude", "bird")
         self.label_trans_list = label_trans(self.label)
         self.re_label_list = re_label(self.label)
 
     def calc_data(self):
-        df_speed = self.df_bird.iloc[:, self.traj_id].dropna(how="all")
-        df_acc = self.df_bird.iloc[:, self.traj_id].diff().dropna(how="all")
-        df_angle = self.df_bird.iloc[:, self.traj_id + 1].dropna(how="all")
+        df_speed = self.df_bird["speed"].iloc[:, self.pure_id].dropna(how="all")
+        df_acc = self.df_bird["speed"].iloc[:, self.pure_id].diff().dropna(how="all")
+        df_angle = self.df_bird["angle"].iloc[:, self.pure_id].dropna(how="all")
+        df_label = self.df_bird["label"].iloc[:, self.pure_id].dropna(how="all")
 
         df_speed = df_speed.reset_index(drop=True)
         df_acc = df_acc.reset_index(drop=True)
         df_angle = df_angle.reset_index(drop=True)
+        df_label = df_label.reset_index(drop=True)
 
         df_cat = pd.concat([df_speed, df_acc, df_angle], axis=1)
         df_cat.columns = ["speed", "acc", "angle"]
+
+        if not df_label.empty:
+
+            df_cat = pd.concat([df_cat, df_label], axis=1)
+            df_cat.columns = ["speed", "acc", "angle", "activity label"]
+
         return df_cat
 
 
@@ -255,8 +262,8 @@ def Plot_Label_Raw_Data(Animal, lat, lon, traj_id, result_dir, epoch):
     for i in range(len(Animal.label_trans_list) - 1):
         s, e = Animal.label_trans_list[i], Animal.label_trans_list[i + 1]
         plt.plot(lat.iloc[s:e + 1, 0], lon.iloc[s:e + 1, 0], c=cmap(Animal.re_label_list[s]), alpha=0.2)
-        plt.scatter(lat.iloc[s:e + 1, 0], lon.iloc[s:e + 1, 0], c=cmap(Animal.re_label_list[s]), s=8, alpha=0.5)
-        plt.text(lat.iloc[s, 0], lon.iloc[s, 0], "{}:{}~{}".format(Animal.re_label_list[s], s, e), color=cmap(Animal.re_label_list[s]), size=10, alpha=0.5)
+        plt.scatter(lat.iloc[s:e + 1, 0], lon.iloc[s:e + 1, 0], c=cmap(Animal.re_label_list[s]), s=8, alpha=0.7)
+        plt.text(lat.iloc[s, 0], lon.iloc[s, 0], "{}:{}~{}".format(Animal.re_label_list[s], s, e), color=cmap(Animal.re_label_list[s]), size=12, alpha=0.5)
 
     plt.title("Segmentation Result", fontsize=15)
     plt.xlabel("x", fontsize=15)
