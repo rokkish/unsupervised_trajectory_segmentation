@@ -155,6 +155,14 @@ def train(args, traj, model, optimizer):
         plt.title("loss")
         plt.savefig("./result/{}/loss_trip{:0=3}.png".format(args.result_dir, traj_id))
 
+    def get_label_bykmeans(traj_):
+        label_kmeans = do_kmeans_InsteadOfSlic.do_kmeans(args.k, traj_)
+        return label_kmeans.flatten()
+
+    def plt_kmeans(label_kmeans):
+        analyze_segmentation.analyze(label_kmeans, args.animal, args.result_dir, i, 100*args.k)
+        analyze_segmentation.plot_relabel(label_kmeans, lat_i, lon_i, args.animal, args.result_dir, i, 100*args.k)
+
     for i in range(args.START_ID, args.END_ID):
 
         loss_all = []
@@ -176,7 +184,9 @@ def train(args, traj, model, optimizer):
 
         """get lat, lon for plot only kmeans"""
         lat_i, lon_i = get_latlon(i)
-        #plt_label.plot_only_kmeans(traj_, lat_i, lon_i, args, e)
+        if "kmeans" in args.d:
+            label_kmeans = get_label_bykmeans(traj_)
+            plt_kmeans(label_kmeans)
 
         for e in range(args.epoch_all):
 
@@ -265,6 +275,7 @@ if __name__ == '__main__':
     PARSER.add_argument("--momentum", type=float, default=0.9, help="learing rate")
 
     PARSER.add_argument("-d", default="", help="header of result dir name, result/d~")
+    PARSER.add_argument("-k", type=int, default=10, help="set k of kmeans for compared method")
 
     ARGS_TMP = PARSER.parse_args()
     ARGSE = Args()
