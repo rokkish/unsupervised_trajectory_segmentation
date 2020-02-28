@@ -74,7 +74,7 @@ def set_hypara(args, tmp):
     args.lr = tmp.lr
     args.momentum = tmp.momentum
 
-    args.d = tmp.d
+    args.d, args.k = tmp.d, tmp.k
 
     args.lat, args.lon, args.result_dir = get_para(args)
 
