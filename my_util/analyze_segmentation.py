@@ -143,7 +143,6 @@ def re_label(label):
 
         ret.append(dic[x])
 
-    logger.debug(label)
     logger.debug(dic)
     logger.debug(ret)
     return ret
@@ -161,31 +160,47 @@ class Worm(object):
 
     def calc_data(self):
 
-        df_dx = self.df_worm.iloc[:, self.traj_id].diff().dropna(how="all")
-        df_dy = self.df_worm.iloc[:, self.traj_id + 1].diff().dropna(how="all")
-        df_dx = df_dx.reset_index(drop=True)
-        df_dy = df_dy.reset_index(drop=True)
-        df_dx_delay = pd.concat([df_dx.iloc[1:], pd.Series(df_dx.iloc[-1])], axis=0)
-        df_dy_delay = pd.concat([df_dy.iloc[1:], pd.Series(df_dy.iloc[-1])], axis=0)
-        df_dx_delay = df_dx_delay.reset_index(drop=True)
-        df_dy_delay = df_dy_delay.reset_index(drop=True)
+        df_speed, df_acc, df_angle = self.load_df_speed_acc_angle()
+        df_turn = self.load_df_turn()
+        df_timestamp = self.load_df_timestamp().astype("int32")
+
+        df_cat = pd.concat([df_timestamp, df_speed, df_acc, df_angle, df_turn], axis=1)
+        df_cat.columns = ["timestamp", "speed", "acc", "angle", "turn"]
+
+        df_cat = df_cat.dropna().reset_index(drop=True)
+        return df_cat.drop("timestamp", axis=1), df_cat["timestamp"]
+
+    def load_df_speed_acc_angle(self):
+        df_dx = self.load_df_dx()
+        df_dy = self.load_df_dy()
+
+        df_dx_delay = pd.concat([df_dx.iloc[1:], pd.Series(df_dx.iloc[-1])], axis=0).reset_index(drop=True)
+        df_dy_delay = pd.concat([df_dy.iloc[1:], pd.Series(df_dy.iloc[-1])], axis=0).reset_index(drop=True)
 
         df_speed = np.sqrt(np.power(df_dx, 2) + np.power(df_dy, 2))
         df_speed_delay = np.sqrt(np.power(df_dx_delay, 2) + np.power(df_dy_delay, 2))
+        df_acc = df_speed.diff()
         df_angle = np.arccos((df_dx * df_dx_delay + df_dy * df_dy_delay) / (df_speed * df_speed_delay))
         df_angle = np.rad2deg(df_angle)
-        df_acc = df_speed.diff().dropna(how="all")
-        df_turn = self.df_worm.iloc[:df_acc.shape[0], self.traj_id + 4].dropna(how="all")
 
-        df_speed = df_speed.reset_index(drop=True)
-        #df_angle = df_angle.reset_index(drop=True)
-        df_acc = df_acc.reset_index(drop=True)
-        df_turn = df_turn.reset_index(drop=True)
+        return df_speed.reset_index(drop=True), df_acc.reset_index(drop=True), df_angle
 
-        df_cat = pd.concat([df_speed, df_acc, df_angle, df_turn], axis=1)
-        df_cat.columns = ["speed", "acc", "angle", "turn"]
-        return df_cat
+    def load_df_dx(self):
+        return self.df_worm["x"].iloc[:, self.pure_id].diff().reset_index(drop=True)
+    def load_df_dy(self):
+        return self.df_worm["y"].iloc[:, self.pure_id].diff().reset_index(drop=True)
+    def load_df_turn(self):
+        return self.df_worm["turn"].iloc[:, self.pure_id].reset_index(drop=True)
+    def load_df_timestamp(self):
+        return self.df_worm["time(sec)"].iloc[:, self.pure_id]
 
+    def load_start_end_index(self, i):
+        return self.label_trans_list[i], self.label_trans_list[i+1]
+    def load_start_end_timestamp(self, i, s, e, df):
+        if i == len(self.label_trans_list) - 2:
+            return df.iloc[s], df.iloc[-1]
+        else:
+            return df.iloc[s], df.iloc[e]
 
 class Bird(object):
     
@@ -197,26 +212,40 @@ class Bird(object):
         self.re_label_list = re_label(self.label)
 
     def calc_data(self):
-        df_speed = self.df_bird["speed"].iloc[:, self.pure_id].dropna(how="all")
-        df_acc = self.df_bird["speed"].iloc[:, self.pure_id].diff().dropna(how="all")
-        df_angle = self.df_bird["angle"].iloc[:, self.pure_id].dropna(how="all")
-        df_label = self.df_bird["label"].iloc[:, self.pure_id].dropna(how="all")
+        df_speed = self.load_df_speed()
+        df_acc = self.load_df_acc()
+        df_angle = self.load_df_angle()
+        df_label = self.load_df_label()
+        df_timestamp = self.load_df_timestamp().astype("int32")
 
-        df_speed = df_speed.reset_index(drop=True)
-        df_acc = df_acc.reset_index(drop=True)
-        df_angle = df_angle.reset_index(drop=True)
-        df_label = df_label.reset_index(drop=True)
-
-        df_cat = pd.concat([df_speed, df_acc, df_angle], axis=1)
-        df_cat.columns = ["speed", "acc", "angle"]
+        df_cat = pd.concat([df_timestamp, df_speed, df_acc, df_angle], axis=1)
+        df_cat.columns = ["timestamp", "speed", "acc", "angle"]
 
         if not df_label.empty:
 
-            df_cat = pd.concat([df_cat, df_label], axis=1)
-            df_cat.columns = ["speed", "acc", "angle", "activity label"]
+            df_cat = df_cat.assign(activity_label=df_label)
 
-        return df_cat
+        df_cat = df_cat.dropna().reset_index(drop=True)
+        return df_cat.drop("timestamp", axis=1), df_cat["timestamp"]
 
+    def load_df_speed(self):
+        return self.df_bird["speed"].iloc[:, self.pure_id].reset_index(drop=True)
+    def load_df_acc(self):
+        return self.df_bird["speed"].iloc[:, self.pure_id].diff().reset_index(drop=True)
+    def load_df_angle(self):
+        return self.df_bird["angle"].iloc[:, self.pure_id].reset_index(drop=True)
+    def load_df_label(self):
+        return self.df_bird["label"].iloc[:, self.pure_id].reset_index(drop=True)
+    def load_df_timestamp(self):
+        return self.df_bird["timestamp"].iloc[:, self.pure_id]
+
+    def load_start_end_index(self, i):
+        return self.label_trans_list[i], self.label_trans_list[i+1]
+    def load_start_end_timestamp(self, i, s, e, df):
+        if i == len(self.label_trans_list) - 2:
+            return df.iloc[s], df.iloc[-1]
+        else:
+            return df.iloc[s], df.iloc[e]
 
 def set_animal(traj_id, label, animal):
     if animal == "bird":
@@ -230,40 +259,55 @@ def set_animal(traj_id, label, animal):
 
 def Plot_Calc_Data_by_label(Animal, result_dir, epoch):
 
-    df = Animal.calc_data()
+    df, df_timestamp = Animal.calc_data()
 
     fig, ax = plt.subplots(nrows=df.shape[1], ncols=1, figsize=(10, 10), sharex=True)
 
     cmap = plt.get_cmap("tab20")
 
-    for j in range(df.shape[1]):
+    for j, (column_name, item) in enumerate(df.iteritems()):
 
-        ax[j].plot(df.iloc[:, j], color="gray")
+        def concat_item_and_raw_timestamp(item=item, df_timestamp=df_timestamp):
+            df_tmp = item.copy()
+            df_tmp.index = df_timestamp
+            return df_tmp
+
+        df_cat = concat_item_and_raw_timestamp()
+        ax[j].plot(df_cat, color="gray", alpha=0.7)
+        ax[j].scatter(x=df_timestamp, y=item, color="gray", s=3, alpha=0.7)
 
         for i in range(len(Animal.label_trans_list)-1):
 
-            s, e = Animal.label_trans_list[i], Animal.label_trans_list[i+1]
+            s, e = Animal.load_start_end_index(i)
+            raw_s, raw_e = Animal.load_start_end_timestamp(i, s, e, df_timestamp)
 
-            ax[j].axvspan(s, e, alpha=0.35, color=cmap(Animal.re_label_list[s]))
+            ax[j].axvspan(raw_s, raw_e, alpha=0.35, color=cmap(Animal.re_label_list[s]))
 
-            ax[j].set_ylabel(df.columns[j], fontsize=15)
+            ax[j].set_ylabel(column_name, fontsize=15)
 
-    ax[df.shape[1]-1].set_xlabel("time", fontsize=15)
+    ax[df.shape[1]-1].set_xlabel("time (sec)", fontsize=15)
 
     plt.savefig("result/{}/analyze_trip{:0=3}_epoch{:0=3}.png".format(result_dir, Animal.pure_id, epoch))
     plt.close()
 
 def Plot_Label_Raw_Data(Animal, lat, lon, traj_id, result_dir, epoch):
     """plot all label"""
+    df, df_timestamp = Animal.calc_data()
+
     plt.figure(figsize=(10, 10))
 
     cmap = plt.get_cmap("tab20")
 
     for i in range(len(Animal.label_trans_list) - 1):
-        s, e = Animal.label_trans_list[i], Animal.label_trans_list[i + 1]
-        plt.plot(lat.iloc[s:e + 1, 0], lon.iloc[s:e + 1, 0], c=cmap(Animal.re_label_list[s]), alpha=0.2)
-        plt.scatter(lat.iloc[s:e + 1, 0], lon.iloc[s:e + 1, 0], c=cmap(Animal.re_label_list[s]), s=8, alpha=0.7)
-        plt.text(lat.iloc[s, 0], lon.iloc[s, 0], "{}:{}~{}".format(Animal.re_label_list[s], s, e), color=cmap(Animal.re_label_list[s]), size=12, alpha=0.5)
+        s, e = Animal.load_start_end_index(i)
+        raw_s, raw_e = Animal.load_start_end_timestamp(i, s, e, df_timestamp)
+
+        logger.debug("%d, %d, %d, %d"%(s, e, raw_s, raw_e))
+
+        plt.plot(lat.iloc[s:e + 1, 0], lon.iloc[s:e + 1, 0], c=cmap(Animal.re_label_list[s]), alpha=0.5)
+        plt.scatter(lat.iloc[s:e + 1, 0], lon.iloc[s:e + 1, 0], c=cmap(Animal.re_label_list[s]), s=8, alpha=1)
+        plt.text(lat.iloc[s, 0], lon.iloc[s, 0], "{}:{}~{}".format(Animal.re_label_list[s], raw_s, raw_e), \
+            color=cmap(Animal.re_label_list[s]), size=18, alpha=0.75)
 
     plt.title("Segmentation Result", fontsize=15)
     plt.xlabel("x", fontsize=15)
