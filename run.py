@@ -9,10 +9,8 @@ if __name__ == "__main__":
     PARSER.add_argument("--animal", choices=["cel", "bird"], default="bird")
 
     # set traj id
-    PARSER.add_argument("--start", type=int, default=0, help="this is start_id")
-    PARSER.add_argument("--end", type=int, default=5, help="this is end_id")
+    PARSER.add_argument("-s", type=int, default=0, help="this is start_id")
 
-    PARSER.add_argument("-d", default="", help="header of result dir name, result/d~")
     PARSER.add_argument("-k", type=int, default=10, help="set k of kmeans for compared method")
 
     args = PARSER.parse_args()
@@ -22,8 +20,8 @@ if __name__ == "__main__":
         "--myloss",
         "--secmax",
         "--time",
-        "--start", str(args.start),
-        "--end", str(args.end),
+        "--start", str(args.s),
+        "--end", str(args.s + 1),
         "--net", "segnet",
         "--animal", str(args.animal),
         "--alpha", "0.1",
@@ -36,8 +34,8 @@ if __name__ == "__main__":
     # without Penalty, secargmax
     subprocess.call(["python", "segnet_with_kmeans.py",
         "--time",
-        "--start", str(args.start),
-        "--end", str(args.end),
+        "--start", str(args.s),
+        "--end", str(args.s + 1),
         "--net", "segnet",
         "--animal", str(args.animal),
         "--alpha", "0.1",
@@ -51,8 +49,8 @@ if __name__ == "__main__":
     subprocess.call(["python", "segnet_with_kmeans.py",
         "--myloss",
         "--time",
-        "--start", str(args.start),
-        "--end", str(args.end),
+        "--start", str(args.s),
+        "--end", str(args.s + 1),
         "--net", "segnet",
         "--animal", str(args.animal),
         "--alpha", "0.1",
@@ -66,8 +64,8 @@ if __name__ == "__main__":
     subprocess.call(["python", "segnet_with_kmeans.py",
         "--secmax",
         "--time",
-        "--start", str(args.start),
-        "--end", str(args.end),
+        "--start", str(args.s),
+        "--end", str(args.s + 1),
         "--net", "segnet",
         "--animal", str(args.animal),
         "--alpha", "0.1",
