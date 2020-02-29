@@ -9,7 +9,7 @@ conda activate py35
 
 学習と予測
 ```
-python segnet_with_kmeans.py --myloss --secmax --time --start 20 --end 21 --alpha 0.1 --lambda_p 0.01 --tau 10000
+python segnet_with_kmeans.py  --myloss --secmax --time --net segnet --alpha 0.1 --lambda_p 0.01 --tau 10000 -e 2 --epoch_all 1 --start 1 --end 2 --animal bird -d test
 ```
 
 ## Environment
