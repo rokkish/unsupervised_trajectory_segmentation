@@ -75,13 +75,7 @@ def load_traj(animal):
 
 def norm_traj(df_traj):
     for j in range(df_traj.shape[1]):
-        """Rescale time"""
-        if (j + 1) % 3 == 0:
-            scale = 1
-        else:
-            scale = 1
-
         df_traj.iloc[:, j] = \
-            (df_traj.iloc[:, j] - df_traj.iloc[:, j].min()) / (df_traj.iloc[:, j].max() - df_traj.iloc[:, j].min()) * scale
+            (df_traj.iloc[:, j] - df_traj.iloc[:, j].min()) / (df_traj.iloc[:, j].max() - df_traj.iloc[:, j].min())
 
     return df_traj
