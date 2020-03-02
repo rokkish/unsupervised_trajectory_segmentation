@@ -151,9 +151,7 @@ class Worm(object):
     
     def __init__(self, traj_id, label):
         self.pure_id = traj_id
-        self.traj_id = traj_id * 5
         self.label = label
-        #HACK:too long load
         self.df_worm = load_df("../worm_data/worm_df_all_data.pkl", "x", "y", "cel")
         self.label_trans_list = label_trans(self.label)
         self.re_label_list = re_label(self.label)
@@ -216,7 +214,7 @@ class Bird(object):
         df_acc = self.load_df_acc()
         df_angle = self.load_df_angle()
         df_label = self.load_df_label()
-        df_timestamp = self.load_df_timestamp().astype("int32")
+        df_timestamp = self.load_df_timestamp()
 
         df_cat = pd.concat([df_timestamp, df_speed, df_acc, df_angle], axis=1)
         df_cat.columns = ["timestamp", "speed", "acc", "angle"]
@@ -237,7 +235,7 @@ class Bird(object):
     def load_df_label(self):
         return self.df_bird["label"].iloc[:, self.pure_id].reset_index(drop=True)
     def load_df_timestamp(self):
-        return self.df_bird["timestamp"].iloc[:, self.pure_id]
+        return pd.to_numeric(self.df_bird["timestamp"].iloc[:, self.pure_id], errors="ignore", downcast="integer")
 
     def load_start_end_index(self, i):
         return self.label_trans_list[i], self.label_trans_list[i+1]

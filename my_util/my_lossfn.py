@@ -2,6 +2,7 @@
 import torch
 import torch.nn as nn
 import numpy as np
+import matplotlib.pyplot as plt
 
 ### begin region ###
 
@@ -30,19 +31,25 @@ logger.addHandler(fh)
 
 ### end region ###
 
-def my_penalty(outputs, labels, alpha, lambda_p, Tau):
-    # outputs =(time, channel)
-    # x =(batch, channel, time)
+def my_penalty(outputs, labels, alpha, lambda_p, Tau, timestamp):
+    """
+        outputs (time, channel)
+        x       (batch, channel, time)
+    """
     device = torch.device("cuda" if torch.cuda.is_available() else 'cpu')
     x = outputs[np.newaxis, :, :]
     x = x.transpose(1, 2)
     T = x.shape[2]
     weight = torch.zeros([T, T])
     weight = weight.to(device)
+
+    logger.debug("timestamp:%s"%(timestamp.shape))
+    logger.debug("x:%s, %s, %s"%(x.shape))
+    logger.debug("weight:%s, %s"%(weight.shape))
+
     for t in range(T):
-        lag = torch.arange(T) - t
-        # lag = lag / (2*T+1.0)
-        lag = lag.to(device)
+        lag = timestamp.values - t
+        lag = torch.from_numpy(lag).to(device)
         lag = torch.exp(torch.sqrt(lag.float()**2) / Tau) - 1.0
         weight[t, :] = lag
 
@@ -53,8 +60,6 @@ def my_penalty(outputs, labels, alpha, lambda_p, Tau):
     pairwise_distance = xx + inner + xx.transpose(2, 1)
     dist = torch.exp(- pairwise_distance / alpha)
 
-
-    #print(pairwise_distance.shape)
     """
     plt.imshow(pairwise_distance.detach().cpu()[0,...])
     plt.colorbar()
@@ -67,7 +72,7 @@ def my_penalty(outputs, labels, alpha, lambda_p, Tau):
     plt.imshow(weight.detach().cpu())
     plt.colorbar()
     plt.show()
-    """
+    #"""
 
 
     """ペナルティ項"""

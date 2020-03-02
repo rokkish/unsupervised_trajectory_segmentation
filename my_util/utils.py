@@ -15,11 +15,11 @@ def set_network_model(network, mod_dim1, mod_dim2, device):
         sys.exit()
     return model
 
-def set_loss_functtion(output, target, args):
+def set_loss_functtion(output, target, args, timestamp):
     """ manage (loss + penalty, crossentropy loss) """
     if not args.crossonly:
         loss = my_lossfn.my_penalty(output, target, \
-            args.alpha, args.lambda_p, args.Tau)
+            args.alpha, args.lambda_p, args.Tau, timestamp)
     else:
         criterion = nn.CrossEntropyLoss()
         loss = criterion(output, target)

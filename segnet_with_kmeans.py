@@ -64,13 +64,17 @@ def run(traj, len_traj, args, model, optimizer, number_traj, epoch):
         tensor = torch.from_numpy(tensor).to(device)
         return tensor
 
+    def load_timestamp(len_traj, args, number_traj):
+        dummy_label = [0]*len_traj
+        Animal = analyze_segmentation.set_animal(traj_id=number_traj, label=dummy_label, animal=args.animal)
+        #TODO:column nameがAnimalで異なる
+        return Animal.load_df_timestamp().dropna().reset_index(drop=True)
+
     logger.debug("start segmentation:")
 
     # TODO:遅いので，事前に全軌跡のKmeansを算出，保存しといて，参照だけにする
     ret_seg_map = do_kmeans_InsteadOfSlic.handle_kmeans(\
         k=int(len_traj/4), traj=traj, window=args.window, time_dim=args.time_dim)
-
-    #logger.debug("ret_seg_map: %s" % (ret_seg_map))
 
     seg_map = ret_seg_map.flatten()
     seg_lab = [np.where(seg_map == u_label)[0] for u_label in np.unique(seg_map)]
@@ -78,6 +82,7 @@ def run(traj, len_traj, args, model, optimizer, number_traj, epoch):
     logger.debug("end segmentation:")
 
     tensor = reshape_train_data(traj)
+    timestamp = load_timestamp(len_traj, args, number_traj)
 
     '''train loop'''
 
@@ -113,7 +118,7 @@ def run(traj, len_traj, args, model, optimizer, number_traj, epoch):
         target = target.to(device)
 
         """get loss"""
-        loss = utils.set_loss_functtion(output=output, target=target, args=args)
+        loss = utils.set_loss_functtion(output=output, target=target, args=args, timestamp=timestamp)
         loss.backward()
         optimizer.step()
 
@@ -220,7 +225,6 @@ def load_data(args):
         logger.debug("Make df, Save")
         df_trajectory = get_traj.get_traj(args.lat, args.lon, args.animal)
         get_traj.save_traj(args.animal, df_trajectory)
-    #df_trajectory = df_trajectory.fillna(0)
 
     """reshape data"""
     traj = df_trajectory.values
