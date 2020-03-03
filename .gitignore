@@ -27,5 +27,7 @@ result/cel*
 result/ablation*
 result/del*
 result/test*
+result/run_ablation*
+result/paper_kmeans*
 *.gif
 *.pkl
