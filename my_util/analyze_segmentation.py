@@ -302,10 +302,14 @@ def Plot_Label_Raw_Data(Animal, lat, lon, traj_id, result_dir, epoch):
 
         logger.debug("%d, %d, %d, %d"%(s, e, raw_s, raw_e))
 
-        plt.plot(lat.iloc[s:e + 1, 0], lon.iloc[s:e + 1, 0], c=cmap(Animal.re_label_list[s]), alpha=0.5)
-        plt.scatter(lat.iloc[s:e + 1, 0], lon.iloc[s:e + 1, 0], c=cmap(Animal.re_label_list[s]), s=8, alpha=1)
-        plt.text(lat.iloc[s, 0], lon.iloc[s, 0], "{}:{}~{}".format(Animal.re_label_list[s], raw_s, raw_e), \
-            color=cmap(Animal.re_label_list[s]), size=18, alpha=0.75)
+        plt.plot(lat.iloc[s:e + 1, 0], lon.iloc[s:e + 1, 0], c=cmap(Animal.re_label_list[s]), alpha=0.5, marker=",")
+
+        plt.scatter(lat.iloc[s,           0], lon.iloc[s,           0], c=cmap(Animal.re_label_list[s]), s=32, alpha=1, marker="s")
+        plt.scatter(lat.iloc[s + 1:e + 1, 0], lon.iloc[s + 1:e + 1, 0], c=cmap(Animal.re_label_list[s]), s=8, alpha=1)
+        plt.scatter(lat.iloc[e - 1      , 0], lon.iloc[e - 1,       0], c=cmap(Animal.re_label_list[s]), s=32, alpha=1, marker="v")
+
+        plt.text(lat.iloc[s, 0]-0.025, lon.iloc[s, 0]+0.01, "{}:{}~{}".format(Animal.re_label_list[s], int(raw_s), int(raw_e)), \
+            color=cmap(Animal.re_label_list[s]), size=18, alpha=0.9)
 
     plt.title("Segmentation Result", fontsize=15)
     plt.xlabel("x", fontsize=15)
