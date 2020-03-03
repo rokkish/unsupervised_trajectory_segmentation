@@ -199,14 +199,21 @@ def train(args, traj, model, optimizer):
 
             """ run """
             length_traj_ = lat_i.shape[0]
-            label, loss = run(traj_, length_traj_, args, model, optimizer, i, e)
-            loss_all.extend(loss)
+            if args.plot_mode:
+                label = torch.load("{}/trip{:0=3}.pkl".format(args.label_dir, i))
+
+            else:
+                label, loss = run(traj_, length_traj_, args, model, optimizer, i, e)
+                loss_all.extend(loss)
 
             """plot result seg"""
             analyze_segmentation.plot_relabel(label, lat_i, lon_i, \
                 args.animal, args.result_dir, i, e)
 
             analyze_segmentation.analyze(label, args.animal, args.result_dir, i, e)
+
+            if not args.plot_mode:
+                break
 
         torch.save(label, "result/{}/trip{:0=3}.pkl".format(args.result_dir, i))
 
@@ -280,6 +287,10 @@ if __name__ == '__main__':
 
     PARSER.add_argument("-d", default="", help="header of result dir name, result/d~")
     PARSER.add_argument("-k", type=int, default=10, help="set k of kmeans for compared method")
+    PARSER.add_argument("--plot_mode", action="store_true")
+    PARSER.add_argument("--label_dir", 
+        default="result/paper_xmodify_bird_xyt_sec_arg_myloss_a0.1_p0.01_tau10000.0", 
+            help="set dir name of load label")
 
     ARGS_TMP = PARSER.parse_args()
     ARGSE = Args()
