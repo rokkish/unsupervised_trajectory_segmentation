@@ -1,17 +1,66 @@
-## requirements
+## Preliminary Investigation of Unsupervised Segmentation for Animal Locomotion Data using Deep Learning
+### Author
+--
+### Abstract
+--
+## How to run
 
-## 実行手順
-
-仮想環境
-```
-conda activate py35
-```
-
-学習と予測
+Train and Prediction Vanilla model
 ```
 python segnet_with_kmeans.py  --myloss --secmax --time --net segnet --alpha 0.1 --lambda_p 0.01 --tau 10000 -e 2 --epoch_all 1 --start 1 --end 2 --animal bird -d test
 ```
 
-## Environment
-torch>=1.1.0
+Train and prediction ablation models
+```
+python run.py --start 1 --end 2 --animal bird -d test
+```
+
+## Requirements
 python==3.5
+
+torch>=1.1.0
+
+## Directory
+```
+├── data
+│   ├── processed      <- The final, canonical data sets for modeling.
+│   └── raw            <- The original, immutable data dump.
+│
+├── documents          <- A default Sphinx project; see sphinx-doc.org for details
+│
+├── log                <- Record Logger.
+│
+├── models             <- Trained and serialized models, model predictions, or model summaries
+│
+├── notebooks          <- Jupyter notebooks.
+│
+├── result             <- Segmentaion results.
+│   └── figures        <- Generated graphics and figures to be used in reporting
+│
+├── reports            <- Generated analysis as HTML, PDF, LaTeX, etc.
+│   └── figures        <- Generated graphics and figures to be used in reporting
+│
+├── src                <- Source code for use in this project.
+│   │  
+│   ├── my_util        <- Module Source code for use in this project.
+│   │   ├── __init_.py
+│   │   ├── analyze_segmentation.py
+│   │   ├── do_kmeans_InsteadOfSlic.py
+│   │   ├── get_traj.py
+│   │   ├── my_lossfn.py
+│   │   ├── plt_label.py
+│   │   ├── sec_argmax.py
+│   │   ├── segnet_model.py
+│   │   ├── set_hypara.py
+│   │   └── utils.py
+│   │
+│   ├── run.py                       <- Train and Prediction ablation models.
+│   │
+│   └── unsupervised_segmentation.py <- Train and Prediction proposed models.
+│
+├── .gitignore
+│
+├── LICENSE
+│
+└── README.md          <- The top-level README for developers using this project.
+```
