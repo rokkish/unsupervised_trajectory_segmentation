@@ -1,8 +1,8 @@
 """ collect many functions """
 import sys
 import torch.nn as nn
-from my_util.models import MyNet
-from my_ytil import my_lossfn
+from my_util.models.segnet_model import MyNet
+from my_util import my_lossfn
 
 def set_network_model(network, mod_dim1, mod_dim2, device):
     """ manage (segnet, unet, other network) """
