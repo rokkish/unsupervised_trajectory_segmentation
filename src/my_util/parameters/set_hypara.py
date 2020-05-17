@@ -1,7 +1,7 @@
 """"this is setting hyper parameter for segnet with kmeans."""
 import os
 import sys
-import my_util.config as config
+import my_util.parameters.config as config
 
 
 def get_numdata(animal):

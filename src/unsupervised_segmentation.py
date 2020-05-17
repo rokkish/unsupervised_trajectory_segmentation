@@ -10,15 +10,14 @@ import numpy as np
 import pandas as pd
 import torch
 
-from my_util import set_hypara
-from my_util import utils
+from my_util.parameters import set_hypara
+from my_util.parameters.my_args import args
+from my_util import utils, get_logger
 from my_util.features import sec_argmax, kmeans, get_traj
 from my_util.visualization import plt_label, analyze_segmentation
 
 import matplotlib.pyplot as plt
 
-from my_util.my_args import args
-import my_util.get_logger as get_logger
 logger = get_logger.get_logger(name='train_model')
 
 device = torch.device("cuda" if torch.cuda.is_available() else 'cpu')

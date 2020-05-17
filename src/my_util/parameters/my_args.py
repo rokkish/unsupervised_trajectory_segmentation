@@ -1,5 +1,5 @@
 import argparse
-import my_util.config as config
+import my_util.parameters.config as config
 
 PARSER = argparse.ArgumentParser(description="this is Segnet with Kmeans")
 
