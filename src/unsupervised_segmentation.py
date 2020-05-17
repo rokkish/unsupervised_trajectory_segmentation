@@ -10,8 +10,10 @@ import numpy as np
 import pandas as pd
 import torch
 
-from my_util import get_traj, plt_label, set_hypara, sec_argmax
-from my_util import do_kmeans_InsteadOfSlic, utils, analyze_segmentation
+from my_util import set_hypara
+from my_util import utils
+from my_util.features import sec_argmax, kmeans, get_traj
+from my_util.visualization import plt_label, analyze_segmentation
 
 import matplotlib.pyplot as plt
 
@@ -50,7 +52,7 @@ def run(traj, len_traj, args, model, optimizer, number_traj, epoch):
     logger.debug("start segmentation:")
 
     # TODO:遅いので，事前に全軌跡のKmeansを算出，保存しといて，参照だけにする
-    ret_seg_map = do_kmeans_InsteadOfSlic.handle_kmeans(\
+    ret_seg_map = kmeans.handle_kmeans(\
         k=int(len_traj/4), traj=traj, window=args.window, time_dim=args.time_dim)
 
     seg_map = ret_seg_map.flatten()
@@ -138,7 +140,7 @@ def train(args, traj, model, optimizer):
         plt.savefig("./result/{}/loss_trip{:0=3}.png".format(args.result_dir, traj_id))
 
     def get_label_bykmeans(traj_):
-        label_kmeans = do_kmeans_InsteadOfSlic.do_kmeans(args.k, traj_)
+        label_kmeans = kmeans.do_kmeans(args.k, traj_)
         return label_kmeans.flatten()
 
     def plt_kmeans(label_kmeans):
