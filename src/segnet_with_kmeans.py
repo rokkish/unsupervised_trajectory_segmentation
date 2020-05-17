@@ -15,32 +15,8 @@ from my_util import do_kmeans_InsteadOfSlic, utils, analyze_segmentation
 
 import matplotlib.pyplot as plt
 
-### begin region ###
-
-import logging
-
-# create logger
-logger = logging.getLogger('train_model')
-logger.setLevel(logging.DEBUG)
-
-# create console handler and set level to debug
-sh = logging.StreamHandler()
-fh = logging.FileHandler("./log/test.log")
-sh.setLevel(logging.INFO)
-fh.setLevel(logging.DEBUG)
-
-# create formatter
-formatter = logging.Formatter('[%(asctime)s] - [%(name)s] - [%(levelname)s] - %(message)s')
-
-# add formatter to handler
-sh.setFormatter(formatter)
-fh.setFormatter(formatter)
-
-# add handler to logger
-logger.addHandler(sh)
-logger.addHandler(fh)
-
-### end region ###
+import get_logger
+logger = get_logger.get_logger(name='train_model')
 
 device = torch.device("cuda" if torch.cuda.is_available() else 'cpu')
 

@@ -8,32 +8,9 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 
-### begin region ###
+import get_logger
+logger = get_logger.get_logger(name='analyze_seg')
 
-import logging
-
-# create logger
-logger = logging.getLogger('analyze_seg')
-logger.setLevel(logging.DEBUG)
-
-# create console handler and set level to debug
-sh = logging.StreamHandler()
-fh = logging.FileHandler("./log/test.log")
-sh.setLevel(logging.INFO)
-fh.setLevel(logging.DEBUG)
-
-# create formatter
-formatter = logging.Formatter('[%(asctime)s] - [%(name)s] - [%(levelname)s] - %(message)s')
-
-# add formatter to handler
-sh.setFormatter(formatter)
-fh.setFormatter(formatter)
-
-# add handler to logger
-logger.addHandler(sh)
-logger.addHandler(fh)
-
-### end region ###
 
 def get_traj(lat, lon, animal):
     """select dir"""
