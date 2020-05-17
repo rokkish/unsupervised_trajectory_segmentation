@@ -7,12 +7,12 @@
 
 Train and Prediction Vanilla model
 ```
-python segnet_with_kmeans.py  --myloss --secmax --time --net segnet --alpha 0.1 --lambda_p 0.01 --tau 10000 -e 2 --epoch_all 1 --start 1 --end 2 --animal bird -d test
+python src/unsupervised_segmentation.py  --myloss --secmax --time --net segnet --alpha 0.1 --lambda_p 0.01 --tau 10000 -e 2 --epoch_all 1 --start 1 --end 2 --animal bird -d test
 ```
 
 Train and prediction ablation models
 ```
-python run.py --start 1 --end 2 --animal bird -d test
+python src/run.py --start 1 --end 2 --animal bird -d test
 ```
 
 ## Requirements
@@ -45,8 +45,11 @@ torch>=1.1.0
 │   ├── my_util        <- Module Source code for use in this project.
 │   │   ├── __init_.py
 │   │   ├── analyze_segmentation.py
+│   │   ├── config.py
 │   │   ├── do_kmeans_InsteadOfSlic.py
+│   │   ├── get_logger.py
 │   │   ├── get_traj.py
+│   │   ├── my_args.py
 │   │   ├── my_lossfn.py
 │   │   ├── plt_label.py
 │   │   ├── sec_argmax.py
