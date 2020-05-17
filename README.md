@@ -43,18 +43,23 @@ torch>=1.1.0
 ├── src                <- Source code for use in this project.
 │   │  
 │   ├── my_util        <- Module Source code for use in this project.
+│   │   │
+│   │   ├── features
+│   │   │   ├── get_trja.py
+│   │   │   ├── kmeans.py
+│   │   │   └── sec_argmax.py
+│   │   ├── models
+│   │   │   ├── my_lossfn.py
+│   │   │   └── segnet_model.py
+│   │   ├── parameters
+│   │   │   ├── config.py
+│   │   │   ├── my_args.py
+│   │   │   └── set_hypara.py
+│   │   ├── visualization
+│   │   │   ├── analyze_segmenation.py
+│   │   │   └── plt_label.py
 │   │   ├── __init_.py
-│   │   ├── analyze_segmentation.py
-│   │   ├── config.py
-│   │   ├── do_kmeans_InsteadOfSlic.py
 │   │   ├── get_logger.py
-│   │   ├── get_traj.py
-│   │   ├── my_args.py
-│   │   ├── my_lossfn.py
-│   │   ├── plt_label.py
-│   │   ├── sec_argmax.py
-│   │   ├── segnet_model.py
-│   │   ├── set_hypara.py
 │   │   └── utils.py
 │   │
 │   ├── run.py                       <- Train and Prediction ablation models.
