@@ -4,7 +4,7 @@ import torch.nn as nn
 import numpy as np
 import matplotlib.pyplot as plt
 
-import get_logger
+import my_util.get_logger as get_logger
 logger = get_logger.get_logger(name='my_lossfn')
 
 

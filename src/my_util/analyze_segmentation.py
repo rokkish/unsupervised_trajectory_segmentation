@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 
-import get_logger
+import my_util.get_logger as get_logger
 logger = get_logger.get_logger(name='analyze_seg')
 
 
