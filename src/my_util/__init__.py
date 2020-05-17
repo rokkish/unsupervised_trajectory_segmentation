@@ -1,1 +1,1 @@
-from .segnet_model import MyNet
+from models.segnet_model import MyNet

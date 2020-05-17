@@ -3,7 +3,7 @@
 log/
 
 # data results
-models/
+models/*.pkl
 result_slide/
 sauce_image/
 sauce_kanezaki.py
