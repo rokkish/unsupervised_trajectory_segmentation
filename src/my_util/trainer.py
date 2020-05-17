@@ -43,17 +43,16 @@ class Trainer():
 
             logger.debug("Trajectory Num: %d/%d" % (i - args.START_ID, args.END_ID - args.START_ID))
 
-            traj_i = self.reshape_traj(i, traj)
+            traj_i = self.sampling_traji(i, traj)
+            lat_i, lon_i = self.get_latlon(traj_i)
 
             if traj_i.shape[0] < 10:
-                # assert(ValueError("Too short data"))
+                logger.info("Too short data:{}".format(traj_i.shape))
                 continue
 
             if i > args.START_ID:
                 self.reinit_model()
 
-            """get lat, lon for plot only kmeans"""
-            lat_i, lon_i = self.get_latlon(i, traj)
             if "kmeans" in args.d:
                 label_kmeans = self.get_label_bykmeans(traj_i)
                 self.plt_kmeans(label_kmeans)
@@ -87,17 +86,25 @@ class Trainer():
         torch.save(self.model.state_dict(), "./models/model.pkl")
 
     @staticmethod
-    def reshape_traj(i, traj):
+    def sampling_traji(i, traj):
+        """Sample traj_i
+            Input : (MaxLength, sample, features)
+            Return: (MinLength,      1, features)
+        """
         traj_i = traj[:, i, :]
         traj_i = traj_i[~np.isnan(traj_i).any(axis=1)]
         traj_i = traj_i[:, np.newaxis, :]
         return traj_i
 
     @staticmethod
-    def get_latlon(i, traj):
-        lat_i = pd.DataFrame(traj[:, i, 0]).dropna(how="all")
+    def get_latlon(traj_i):
+        """Return x, y
+            Input : (MinLength, 1, features{x, y, t})
+            Return: (MinLength, xory)
+        """
+        lat_i = pd.DataFrame(traj_i[:, 0, 0]).dropna(how="all")
         lat_i = lat_i.reset_index(drop=True)
-        lon_i = pd.DataFrame(traj[:, i, 1]).dropna(how="all")
+        lon_i = pd.DataFrame(traj_i[:, 0, 1]).dropna(how="all")
         lon_i = lon_i.reset_index(drop=True)
         return lat_i, lon_i
 
