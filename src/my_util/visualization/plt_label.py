@@ -3,7 +3,6 @@ import os
 import glob
 
 import matplotlib.pyplot as plt
-import matplotlib.animation as animation
 
 import torch
 from PIL import Image
@@ -11,8 +10,6 @@ from PIL import Image
 import pandas as pd
 import numpy as np
 from scipy.stats import entropy
-
-from my_util import do_kmeans_InsteadOfSlic as kmios
 
 
 #"""these function is used in main() """
