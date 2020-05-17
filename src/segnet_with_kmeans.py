@@ -10,12 +10,13 @@ import numpy as np
 import pandas as pd
 import torch
 
-from my_util import get_traj, plt_label, set_hypara, sec_argmax, Args
+from my_util import get_traj, plt_label, set_hypara, sec_argmax
 from my_util import do_kmeans_InsteadOfSlic, utils, analyze_segmentation
 
 import matplotlib.pyplot as plt
 
-import get_logger
+from my_util.my_args import args
+import my_util.get_logger as get_logger
 logger = get_logger.get_logger(name='train_model')
 
 device = torch.device("cuda" if torch.cuda.is_available() else 'cpu')
@@ -231,52 +232,11 @@ def main(args):
     train(args, traj, model, optimizer)
 
 if __name__ == '__main__':
-    PARSER = argparse.ArgumentParser(description="this is Segnet with Kmeans")
 
-    # data
-    PARSER.add_argument("--animal", choices=["cel", "bird"], default="bird")
-
-    # train
-    PARSER.add_argument("-e", "--epoch", type=int, default=2**5, help="BATCH: num of trainging with one trajectory")
-    PARSER.add_argument("--epoch_all", type=int, default=2**3, help="EPOCH: num of training with all trajectories")
-
-    # hypara of custom loss
-    PARSER.add_argument("--alpha", type=float, default=10, help="to be bigger, enlarge d. To be smaller, ensmaller d")
-    PARSER.add_argument("--lambda_p", type=float, default=0.01)
-    PARSER.add_argument("--tau", type=float, default=100, help="to be smaller, enlarge w.")
-
-    # on/off custom module
-    PARSER.add_argument("--time", action="store_true")
-    PARSER.add_argument("--myloss", action="store_false")
-    PARSER.add_argument("--secmax", action="store_true")
-
-    # set traj id
-    PARSER.add_argument("--start", type=int, default=0, help="this is start_id")
-    PARSER.add_argument("--end", type=int, default=5, help="this is end_id")
-
-    # select network
-    PARSER.add_argument("--net", type=str, default="segnet")
-
-    # train high param
-    PARSER.add_argument("--lr", type=float, default=0.05, help="learing rate")
-    PARSER.add_argument("--momentum", type=float, default=0.9, help="learing rate")
-
-    PARSER.add_argument("-d", default="", help="header of result dir name, result/d~")
-    PARSER.add_argument("-k", type=int, default=10, help="set k of kmeans for compared method")
-    PARSER.add_argument("--plot_mode", action="store_true")
-    PARSER.add_argument("--label_dir", 
-        default="result/paper_xmodify_bird_xyt_sec_arg_myloss_a0.1_p0.01_tau10000.0", 
-            help="set dir name of load label")
-
-    ARGS_TMP = PARSER.parse_args()
-    ARGSE = Args()
-
-    # HACK: this is too uneffectively.
-    # translate from input arg to default arg
-    ARGSE = set_hypara.set_hypara(ARGSE, ARGS_TMP)
+    args = set_hypara.main(args)
 
     logger.info("Train Start")
 
-    main(ARGSE)
+    main(args)
 
     logger.info("Train End")
