@@ -69,6 +69,7 @@ class Trainer():
                 else:
                     label, loss = self.run(traj_i, length_traj_i, i, e)
                     loss_all.extend(loss)
+                    self.save_as_pkl(label, traj_i, i, e)
 
                 """plot result seg"""
                 analyze_segmentation.plot_relabel(label, lat_i, lon_i, \
@@ -214,3 +215,21 @@ class Trainer():
         plt_label.save_gif(args, number_traj, epoch)
 
         return im_target, ret_loss
+
+    def save_as_pkl(self, label, traj_i, traj_id, epoch):
+        """
+            Args:
+                label.shape  (T)
+                traj_i.shape (T, 1, 3)
+        """
+        if traj_i.shape[2] != 3:
+            raise ValueError("Don't save notime data, please set arg (--time).")
+        #reshape
+        label = label[:, np.newaxis]
+        traj_i = traj_i[:, 0, :]
+        #concat
+        cat = np.concatenate([traj_i, label], axis=1)
+        #df
+        df = pd.DataFrame(cat)
+        #save
+        df.to_pickle("./result/{}/input_output_traj{:0=3}_e{:0=3}.pkl".format(self.args.result_dir, traj_id, epoch))
