@@ -34,6 +34,7 @@ PARSER.add_argument("--momentum", type=float, default=config.momentum, help="lea
 PARSER.add_argument("-d", default=config.dir_name, help="header of result dir name, result/d~")
 PARSER.add_argument("-k", type=int, default=config.K, help="set k of kmeans for compared method")
 PARSER.add_argument("--plot_mode", action="store_true")
+PARSER.add_argument("--savegif", action="store_true", help="if true, save images of entropy as gif. Otherwise, dont save, and rm images.")
 PARSER.add_argument("--label_dir", default=config.label_dir, help="set dir name of load label")
 
 # gpu
