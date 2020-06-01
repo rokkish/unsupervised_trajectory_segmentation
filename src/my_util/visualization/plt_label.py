@@ -90,15 +90,19 @@ def plot_entropy_at_each_pixel(output, batch_idx, args, file_name):
 
 def save_gif(args, number_traj, epoch, file_name="output"):
 
-    files = sorted(glob.glob("result/" + args.result_dir + "/" + file_name + "_*.png"))
-    images = list(map(lambda file: Image.open(file), files))
-    images[0].save("result/{}/{}_traj{:0=3}_epoch{:0=3}.gif".format(args.result_dir, file_name, number_traj, epoch),\
-        save_all=True, append_images=images[1:], duration=500, loop=1)
+    def glob_files(file_name):
+        files = sorted(glob.glob("result/" + args.result_dir + "/" + file_name + "_*.png"))
+        return files
 
     def remove_glob(files):
         for path in files:
             os.remove(path)
 
+    files = glob_files(file_name)
+    if args.savegif:
+        images = list(map(lambda file: Image.open(file), files))
+        images[0].save("result/{}/{}_traj{:0=3}_epoch{:0=3}.gif".format(args.result_dir, file_name, number_traj, epoch),\
+            save_all=True, append_images=images[1:], duration=500, loop=1)
     remove_glob(files)
 
 def plot_entropy_at_each_batch(output, traj, len_traj, args, batch_idx):
