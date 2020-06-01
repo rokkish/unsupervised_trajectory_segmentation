@@ -7,7 +7,7 @@
 
 Train and Prediction Vanilla model
 ```
-python src/unsupervised_segmentation.py  --myloss --secmax --time --net segnet --alpha 0.1 --lambda_p 0.01 --tau 10000 -e 2 --epoch_all 1 --start 1 --end 2 --animal bird -d test
+python src/unsupervised_segmentation.py  --myloss --secmax --time --net segnet --alpha 0.1 --lambda_p 0.01 --tau 10000 -e 2 --epoch_all 1 --start 1 --end 2 --animal bird --savegif -d test
 ```
 
 Train and prediction ablation models
