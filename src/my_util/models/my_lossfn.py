@@ -20,9 +20,9 @@ def my_penalty(outputs, labels, alpha, lambda_p, Tau, timestamp):
     weight = torch.zeros([T, T])
     weight = weight.to(device)
 
-    logger.debug("timestamp:%s"%(timestamp.shape))
-    logger.debug("x:%s, %s, %s"%(x.shape))
-    logger.debug("weight:%s, %s"%(weight.shape))
+    #logger.debug("timestamp:%s"%(timestamp.shape))
+    #logger.debug("x:%s, %s, %s"%(x.shape))
+    #logger.debug("weight:%s, %s"%(weight.shape))
 
     for t in range(T):
         lag = timestamp.values - t

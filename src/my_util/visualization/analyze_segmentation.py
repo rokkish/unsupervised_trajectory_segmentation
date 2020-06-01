@@ -277,7 +277,7 @@ def Plot_Label_Raw_Data(Animal, lat, lon, traj_id, result_dir, epoch):
         s, e = Animal.load_start_end_index(i)
         raw_s, raw_e = Animal.load_start_end_timestamp(i, s, e, df_timestamp)
 
-        logger.debug("%d, %d, %d, %d"%(s, e, raw_s, raw_e))
+        #logger.debug("%d, %d, %d, %d"%(s, e, raw_s, raw_e))
 
         plt.plot(lat.iloc[s:e + 1, 0], lon.iloc[s:e + 1, 0], c=cmap(Animal.re_label_list[s]), alpha=0.5, marker=",")
 
