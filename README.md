@@ -2,7 +2,13 @@
 ### Author
 --
 ### Abstract
---
+The recent development of sensing technology and computer vision enables to track and measure the behavior of animals. This study investigates the unsupervised segmentation of animal locomotion data using deep learning based on image-based unsupervised segmentation methods.
+
+## Overview
+<div align="center">
+    <img src="documents/model.png", width="600">
+</div>
+
 ## How to run
 
 Train and Prediction Vanilla model
